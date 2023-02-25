@@ -1,0 +1,26 @@
+# Makefile.irix-n32
+#
+# This file contains the macros needed for the SGI N32 ABI.
+# It will be included by the Makefile in the "bin" directory.
+# 9-Jul-1997.
+
+# BINABIFG: the ABI-specific flags for the DRAGON package.
+BINABIFG = -DUSE_OPENGL_GRAPHICS -DUSE_PVM -DHAS_MATHERR
+
+# PVMROOT: the root of the PVM hierarchy.
+# PVMPATH: the location of the PVM library for each ABI.
+# PVMLIB: the link name (ie. '-lpvm3') of the PVM library.
+# Leave both blank if no PVM support is desired (and do not set USE_PVM above)
+PVMROOT = $(PVM_ROOT)
+PVMPATH = -L$(PVMROOT)/lib/SGI6
+PVMLIB = -lpvm3
+
+# MATHLIB: maths library specification for the linker.
+# -lmx links in the extended maths library (with matherr()) on SGI.
+# Set the HAS_MATHERR macro below, too.
+# Use -lm for other architectures.
+MATHLIB = -lmx
+
+# GLIB: graphics library specification for the linker.
+# This should be empty for those architectures which have no OpenGL.
+GLIB = -lgraph -delay_load -lGLU -lGL -lX11

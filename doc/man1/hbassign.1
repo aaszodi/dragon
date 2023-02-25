@@ -1,0 +1,60 @@
+.\" Copyright (c) 1993-1996 Andras Aszodi
+.TH hbassign 1 "5 June 1996"
+.de BP
+.sp
+.ti \-.2i
+\(**
+..
+
+.SH NAME
+hbassign \-main chain hydrogen bond restraint assignment
+
+.SH SYNOPSIS
+.hy 0
+.na
+.B hbassign \c
+.RB control_file
+.ad b
+.hy 1
+.SH DESCRIPTION
+.B hbassign\c
+\& generates main chain hydrogen bond restraints for
+homology models created with
+.B dragon\c
+\&. This is necessary to maintain correct secondary structure
+geometries when the peptide bonds are added to the raw C\-alpha
+trace of the model.
+
+.TP
+\fIcontrol_file\fP format:
+
+.br
+MULTAL_file
+.br
+target_no
+.br
+DSSP_file
+.br
+<...more DSSP files...>
+
+.SH
+where \fIMULTAL_file\fP is the name of the alignment,
+\fItarget_no\fP is the number of the target sequence
+within the alignment, and \fIDSSP_file\fP is a DSSP
+description of the known homologous structures in
+the alignment. 
+.B hbassign\c
+\& extracts the hydrogen bonds between equivalent main-chain
+atoms and prints them to stdout in \fIQUANTA\fP NOE restraint
+file format. 
+
+.SH AUTHOR
+Andras Aszodi (a-aszodi@nimr.mrc.ac.uk).
+
+.SH DISCLAIMER
+This program is provided ``as is'' with no warranties, express or implied,
+whatsoever. The fact that this software has been made publicly available
+does not mean that the software is suitable for any particular
+purpose. The author will assume no responsibility for any damages
+arising from the use of the software. Bug reports and suggestions
+are welcome but I cannot guarantee support of any sort.

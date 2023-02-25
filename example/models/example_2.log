@@ -1,0 +1,20 @@
+CHILD PROCESS ID=7486
+
+RUN 2 STARTED: Mon 14-Feb-2000 16:09:38
+# Randseed=958206642
+CYCLE: 1 (0%, 0 seconds)
+? centre_dist(): Cdist2[69]=-8.029e+00
+? centre_dist(): Cdist2[69]=-6.070e-02
+? centre_dist(): Cdist2[69]=-9.654e-02
+DIST: BD=1.733e+00, NB=0.000e+00, RS=9.696e-01, SC=1.107e+01, AC=2.905e+00
+PROJ: Dim=31, Df=8.224e-01,  STR=7.103e-02 
+TNGL: 0 (cyc=3)
+EUCL: IN=1.597e-04 ALL=4.346e-05
+EUCL: BD=5.421e-05, NB=0.000e+00, RS=1.638e-01, SC=7.367e-01, AC=2.735e+00
+CYCLE: 2 (38%, 2 secs)
+DIST: BD=1.260e-02, NB=0.000e+00, RS=5.032e-01, SC=9.222e-01, AC=2.769e+00
+PROJ: Dim=30, Df=1.000e-00,  STR=3.334e-04 
+TNGL: 0 (cyc=1)
+EUCL: IN=4.754e-05 ALL=1.721e-05
+EUCL: BD=1.903e-05, NB=0.000e+00, RS=5.471e-01, SC=4.345e-01, AC=2.503e+00
+CYCLE: 3 (39%, 4 secs)

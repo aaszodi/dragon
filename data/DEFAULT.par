@@ -1,0 +1,74 @@
+# --- String parameters ---
+
+# Alignment file (default=$DRAGON_DATA/DEFAULT.aln)
+Alnfnm $DRAGON_DATA/DEFAULT.aln
+
+# Amino acid hydrophobicity file (default=$DRAGON_DATA/DEFAULT.pho)
+Phobfnm $DRAGON_DATA/DEFAULT.pho
+
+# Side chain volume file (default=$DRAGON_DATA/DEFAULT.vol)
+Volfnm $DRAGON_DATA/DEFAULT.vol
+
+# File holding atom distances from C-alpha and sidechain centroids (default=$DRAGON_DATA/DEFAULT.acd)
+Adistfnm $DRAGON_DATA/DEFAULT.acd
+
+# Amino acid similarity matrix file (default=$DRAGON_DATA/DEFAULT.sim)
+Simfnm $DRAGON_DATA/DEFAULT.sim
+
+# External restraint file (default=)
+Restrfnm 
+
+# Secondary structure assignment file (default=)
+Sstrfnm 
+
+# Surface/buried residue assignment file (default=)
+Accfnm 
+
+# Homologous structure PDB file (default=)
+Homfnm 
+
+# Result PDB file (default=DRAGON_OUT)
+Outfnm DRAGON_OUT
+
+# --- Integer-valued parameters ----
+
+# Master sequence number (0=consensus) (default=0, limits: [0 .. 2147483647] )
+Masterno 0
+
+# Maximal number of iterations in 3D (default=40, limits: [1 .. 500] )
+Maxiter 40
+
+# RNG seed (default=0, limits: [0 .. 2147483647] )
+Randseed 0
+
+# Maximal number of detangling iterations (default=5, limits: [1 .. 100] )
+Tangiter 5
+
+# Graphics off/on (SGI version only) (default=0, limits: [0 .. 1] )
+Graph 0
+
+# Minimal sequential separation for homology restraints (default=2, limits: [2 .. 2147483647] )
+Minsepar 2
+
+# Maximal number of Specgrad optimisation iterations (default=30, limits: [10 .. 100] )
+Speciter 30
+
+# ---- Floating-point parameters ----
+
+# Minimal score limit (default=0, limits: [0 .. 1.79769e+308] )
+Minscore 0
+
+# Minimal relative score change (default=0, limits: [0 .. 1.79769e+308] )
+Minchange 0
+
+# Fraction of eigenvalues kept (default=0.999, limits: [0 .. 1] )
+Evfract 0.999
+
+# Residue density [1/A^3] (default=0.00636, limits: [0.001 .. 0.012] )
+Density 0.00636
+
+# Maximal length of homology distance restraints (default=5, limits: [0 .. 1.79769e+308] )
+Maxdist 5
+
+# Precision for Specgrad iterations (default=0.02, limits: [0.0001 .. 0.1] )
+Speceps 0.02

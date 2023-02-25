@@ -1,0 +1,10 @@
+# Restraint violations: 8
+#     Atom pair     Type  Actual Ideal (Strict) Rel.viol Error
+SCC[   4]:SCC[  76] RESTR  9.74 >  4.50 (1.00)  1.17 116.5 %
+SCC[   7]:SCC[  70] RESTR  2.25 <  3.80 (1.00)  0.41  40.8 %
+ CA[  76]: CA[   4] RESTR  8.61 >  7.00 (1.00)  0.23  23.0 %
+ CA[  45]: CA[  35] RESTR  5.07 <  5.80 (1.00)  0.13  12.6 %
+ CA[  70]: CA[   7] RESTR  5.09 <  5.80 (1.00)  0.12  12.3 %
+SCC[  35]:SCC[  45] RESTR  3.47 <  3.80 (1.00)  0.09   8.8 %
+ CA[  36]: CA[  33] HELIX  6.34 >  5.09 (0.30)  0.07  24.5 %
+ CA[  36]: CA[  32] HELIX  7.71 >  6.28 (0.30)  0.07  22.8 %

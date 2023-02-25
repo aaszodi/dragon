@@ -1,0 +1,5 @@
+# ompa_10.run 30-Jul-1996.
+p example/example.par
+r 60
+q
+

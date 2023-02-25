@@ -1,0 +1,11 @@
+# disulf.restr
+# Known disulfide bonds in T0042:  4-76, 7-70, 35-45
+# The distances are taken from the bonds 14-41 and 45-56 in 2CTX
+# which is probably NOT homologous...
+# 04-Oct-1996.
+4 76 6.80 7.00 1.00 CA CA
+4 76 3.80 4.50 1.00 SCC SCC
+7 70 5.80 6.00 1.00 CA CA
+7 70 3.80 4.50 1.00 SCC SCC
+35 45 5.80 6.00 1.00 CA CA
+35 45 3.80 4.50 1.00 SCC SCC

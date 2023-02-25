@@ -1,0 +1,28 @@
+# Makefile.irix-n32
+#
+# This file contains the macros needed for the SGI N32 ABI.
+# It will be included by Makefiles in the "bin" and "lib" directories.
+# 9-Jul-1997.
+
+# The sub/Makefile in "lib" expect these
+# macros to be set on the command line when invoked.
+# CC: the C compiler
+# CXX: the C++ compiler
+# LIBABIFG: the ABI-dependent flags
+
+CC = cc
+CXX = CC
+LIBABIFG = -n32 -mips3 -OPT:Olimit=6000 \
+    -D__INLINE_INTRINSICS -D__MATH_HAS_NO_SIDE_EFFECTS
+
+# C optimisation
+COPT = -O2 -ansi
+
+# C++ optimisation
+CCOPT = -O2 -xansi 
+
+# Template prelinker (for SGI only, use dummy command for non-SGI)
+TMPLINK = /usr/lib/DCC/edg_prelink
+
+# Template instantiation options
+TMPLOPTS = -DINCLUDE_TMPL_DEFS -no_auto_include

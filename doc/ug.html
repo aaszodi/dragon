@@ -1,0 +1,1734 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (X11; I; IRIX64 6.4 IP30) [Netscape]">
+   <TITLE>The DRAGON User Guide</TITLE>
+<!-- SGI_COMMENT COSMOCREATE -->
+<!-- SGI_COMMENT VERSION NUMBER="1.0.2" -->
+</HEAD>
+<BODY>
+
+<CENTER>
+<H1>
+The DRAGON User Guide<br>
+Version 4.18.1<br>
+May 2000<br>
+</H1></CENTER>
+
+<CENTER><IMG SRC="dragon.gif" SGI_SRC="/raid1/usr/people/andras/dragon4/doc/dragon.gif"  ALIGN=CENTER></CENTER>
+
+<CENTER>Andr&aacute;s Asz&oacute;di</CENTER>
+
+<CENTER><I>Present address:</I></CENTER>
+
+<CENTER>Novartis Forschungsinstitut GmbH</CENTER>
+
+<CENTER>Brunnerstrasse 59</CENTER>
+
+<CENTER>A-1235 Vienna, Austria</CENTER>
+
+<HR>
+<CENTER>
+<H2>
+Contents</H2></CENTER>
+
+<MENU>
+<LI>
+<A HREF="#introduction">Introduction</A></LI>
+
+<LI>
+<A HREF="#preparing">Preparing for a Simulation</A></LI>
+
+<LI>
+<A HREF="#running">Running a Simulation</A></LI>
+
+<LI>
+<A HREF="#after">After the Simulation</A></LI>
+
+<LI>
+<A HREF="#Command">Command reference</A></LI>
+
+<LI>
+<A HREF="#parameters">Parameters</A></LI>
+
+<LI>
+<A HREF="#references">References</A></LI>
+</MENU>
+
+<HR>
+<CENTER>
+<H2>
+<A NAME="introduction"></A>Introduction</H2></CENTER>
+DRAGON is a protein modelling tool using Distance Geometry. It was developed
+at the <A HREF="http://www.nimr.mrc.ac.uk/~mathbio/">Division of Mathematical
+Biology</A> of the <A HREF="http://www.nimr.mrc.ac.uk/">National Institute
+for Medical Research</A> (NIMR) between 1993 and 1996: the algorithms were
+designed by Willie R. Taylor and myself, while I am solely responsible
+for the implementation. DRAGON attempts to predict the tertiary structure
+of a small soluble protein, given its sequence, the secondary structure
+and possibly a set of structure-specific restraints. DRAGON communicates
+with you through a simple command-line interface which is used to specify
+parameter values and input filenames. During the run, DRAGON keeps you
+informed by writing a lot to the standard output. Finally, the model structures
+are written to coordinate files in PDB format.
+<CENTER><IMG SRC="infoflow.gif" SGI_SRC="/raid1/usr/people/andras/dragon4/doc/infoflow.gif"  ALIGN=CENTER></CENTER>
+
+<CENTER><I>Distance restraints are obtained from external sources such
+as NMR experiments and from estimates based on the conserved hydrophobicity
+of residues. Background stereochemical knowledge is also included to model
+the hydrophobic effect, the geometry and handedness of secondary structures
+and the absence of native tangled conformations.</I></CENTER>
+
+
+<P>Why DRAGON? The acronym allegedly stands for "<B>D</B>istance <B>R</B>egularisation
+<B>A</B>lgorithm for <B>G</B>eometry <B>O</B>ptimisatio<B>N</B>'', but
+in fact any other silly acronym would have done, the main purpose of its
+silliness being that people would remember it.
+<CENTER>
+<H3>
+Typographical Conventions</H3></CENTER>
+Anything that appears in fixed-width <TT>typewriter font</TT> is either
+a command, variable name etc. that must be typed literally or program output.
+Emphasised words like <I>filename</I> describe general concepts which can
+take different values depending on context etc. Items enclosed between
+square brackets [ ] are optional.
+<CENTER>
+<H3>
+Installation</H3></CENTER>
+
+<CENTER>
+<H4>
+Supported platforms</H4></CENTER>
+Currently the following platforms and operating systems are supported:-
+<UL>
+<LI>
+Silicon Graphics</LI>
+
+<UL>
+<LI>
+irix-o32: IRIX 5.3 and above; MIPS-II, R4k, R5k, R8k, R10k ("old 32-bit
+ABI")</LI>
+
+<LI>
+irix-n32: IRIX 6.2 and above; MIPS-III, R4k, R5k, R8k, R10k ("new 32-bit
+ABI")</LI>
+
+<LI>
+irix-n64: IRIX 6.2 and above; MIPS-IV, R8k, R10k (64-bit ABI)</LI>
+</UL>
+
+<LI>
+IBM PC and compatibles</LI>
+
+<UL>
+<LI>
+linux: Linux 2.0.x, ELF executable format, Intel X86 processors</LI>
+</UL>
+
+<LI>
+Sun</LI>
+
+<UL>
+<LI>
+solaris-sparc: Solaris 2.x, SPARC processors</LI>
+
+<LI>
+solaris-i86: Solaris 2.x, Intel X86 processors</LI>
+</UL>
+</UL>
+Please note that there is no support provided or even planned for the operating
+systems marketed by Microsoft.
+<CENTER>
+<H4>
+Executable installation</H4></CENTER>
+This distribution contains the executables in the subdirectories of <TT>dragon4/bin</TT>
+corresponding to each architecture, and the data (<TT>dragon4/data</TT>)
+and documentation (<TT>dragon4/doc</TT>) subtrees. A C shell script <TT>dragon4/bin/startup-&lt;ARCH>.sh</TT>
+is provided that sets the following environment variables:-
+<UL>
+<LI>
+<TT>DRAGON_ROOT</TT>: the location of the DRAGON installation tree</LI>
+
+<LI>
+<TT>DRAGON_ABI</TT>: the application binary interface name</LI>
+
+<LI>
+<TT>DRAGON_DATA:</TT> it contains the name of the data directory (without
+the trailing slash). Data files names may then be specified in the parameter
+file as <TT>$DRAGON_DATA/data.file</TT>.</LI>
+
+<LI>
+<TT>PVM_ARCH</TT>: the PVM architecture name for picking the correct PVM
+executable on your machines.</LI>
+</UL>
+The startup script also adds the directories <TT>$DRAGON_ROOT/bin/$ABI
+$PVM_ROOT/lib/$PVM_ARCH $PVM_ROOT/bin/$PVM_ARCH</TT> to your path.
+<CENTER><IMG SRC="sgilogo.gif" SGI_SRC="/raid1/usr/people/andras/dragon4/doc/sgilogo.gif" ></CENTER>
+
+<CENTER>
+<H4>
+Silicon Graphics</H4></CENTER>
+Since the introduction of IRIX 6.2, SGI provides three different application
+binary interfaces (ABIs):-
+<OL>
+<LI>
+irix-o32: this is the "old" 32-bit ABI which runs on every SGI machine
+under IRIX 5.3 and above. The o32 version of DRAGON was compiled with the
+<TT>-mips2</TT> flag and consequently will not run on R3000 processors.
+Use this ABI if you have not upgraded from IRIX 5.3 yet. Support for this
+ABI will be discontinued soon.</LI>
+
+<LI>
+irix-n32: this is the "new" 32-bit ABI which is allegedly faster than the
+o32 version (your mileage may vary). From my point of view the main advantage
+of this ABI was that the n32 C++ compiler supported more language features
+than the old o32 version. The n32 executable of DRAGON was compiled with
+the <TT>-mips3</TT> flag and runs on R4000 processors and above under IRIX
+6.2 and above. This is the preferred ABI as far as compatibility is concerned.</LI>
+
+<LI>
+irix-n64: this is the 64-bit version of DRAGON compiled with the <TT>-mips4</TT>
+flag that runs on R8000 and R10000 processors. The code was optimised for
+the R10000 processor. Please note that the n64 ABI is <FONT COLOR="#FF0000">NOT</FONT>
+supported on R10000 O2 machines running IRIX 6.3.</LI>
+</OL>
+There is no support for the Intel-based SGI workstations running Windows
+NT.
+<CENTER><IMG SRC="penguin.gif" SGI_SRC="/raid1/usr/people/andras/dragon4/doc/penguin.gif" ></CENTER>
+
+<CENTER>
+<H4>
+PC/Intel X86/Linux</H4></CENTER>
+The Linux executable (ELF format) was compiled with GCC/G++ 2.95.2 running
+under Linux 2.2.x. You may get dire warnings in some cases where the bugs
+in G++ cause problems (in particular, the program cannot catch and process
+SIGINT interrupts (Ctrl-C) properly). OpenGL graphics is supported via
+Brian Paul's <A HREF="http://www.ssec.wisc.edu/~brianp/Mesa.html">Mesa
+library</A>. It is recommended to use an accelerated SVGA X server with
+at least 16 bit colour to get the best graphics results.
+<CENTER><IMG SRC="sun.gif" SGI_SRC="/raid1/usr/people/andras/dragon4/doc/sun.gif" ></CENTER>
+
+<CENTER><B>Sun/Solaris</B></CENTER>
+
+
+<P>The Sun executables were compiled under Solaris 2.X using the Gnu GCC/G++
+compiler (version 2.8.1). Please note that OpenGL graphics is not supported
+by the Sun version. Executables are provided for SPARC and X86 architectures.
+<CENTER>
+<H4>
+Portability</H4></CENTER>
+Apart from the OpenGL graphics option, the C source is pure ANSI, while
+the C++ source corresponds to the <I>C++ Annotated Reference Manual</I>.
+It is straightforward to port DRAGON to other architectures supported
+by GCC. The main obstacle to porting the code with other native compilers
+is the C++ template instantiation which would require some tinkering with
+the Makefiles.
+<CENTER>
+<H4>
+Related software</H4></CENTER>
+There are auxiliary programs which can be used in conjunction with DRAGON
+called <TT><A HREF="#rank">rank</A>, hbassign, <A HREF="#sidech">sidech</A>,
+<A HREF="#clumsy">clumsy</A></TT>, <TT><A HREF="#secmap">secmap</A></TT>
+but they are not absolutely necessary for using DRAGON itself. Some manual
+pages are provided for these programs and they also print a few help lines
+if you invoke them without any command-line arguments.
+
+<P>DRAGON can run under <B>PVM</B>, a simulated parallel-processing environment.
+You can obtain PVM from <A HREF="http://netlib.bell-labs.com/netlib/master/readme.html">Netlib</A>
+but DRAGON will run without it anyway if you don't want to install it.
+<CENTER>
+<H3>
+Licensing</H3></CENTER>
+The executables of DRAGON can be used by anyone, no licence is needed.
+However, please keep in mind that DRAGON is the intellectual property of
+William R. Taylor and Andr&aacute;s Asz&oacute;di and as such both of us
+would be grateful if you cited our <A HREF="#references">relevant papers</A>
+when publishing your work in which DRAGON was used. We do not distribute
+the source code.
+<CENTER>
+<H3>
+Disclaimer...</H3></CENTER>
+...without which it is impossible to write a good User Guide nowadays.
+Let's see:-
+<BR>Copyright &copy; 1993-2000. Andr&aacute;s Asz&oacute;di, William R.
+Taylor.
+<BR>The DRAGON program suite is distributed free of charge. The copyright
+holders therefore undertake no warranty of any kind, as detailed the NO
+WARRANTY section below which was taken from the GNU General Public License
+(Copyright &copy; 1989, 1991 Free Software Foundation, Inc., 675 Mass Ave,
+Cambridge, MA 02139, USA):-
+<CENTER>
+<H3>
+NO WARRANTY</H3></CENTER>
+BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
+THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE
+STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE
+PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY
+AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE,
+YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+<P>IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE
+THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING
+ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF
+THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS
+OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR
+THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY
+OF SUCH DAMAGES.
+<CENTER>
+<H4>
+Special Novartis Disclaimer</H4></CENTER>
+<FONT COLOR="#FF0000">Please note that the DRAGON package has nothing to
+do with and is not endorsed in any way by my present employer, the Novartis
+Forschungsinstitut GmbH, Vienna, Austria.</FONT>
+<CENTER>
+<H3>
+Support</H3></CENTER>
+There is none. The development of DRAGON is finished, I am not working
+for the NIMR any more and I have no time for active maintenance of the
+software. Sporadic updates may occur from time to time though. Bug reports
+are welcome but I will not reply to them. Also, I will not provide tutorials:
+when in doubt, please consult this Guide.
+<CENTER>
+<H3>
+Acknowledgements</H3></CENTER>
+I would like to express my gratitude to my former boss, Willie Taylor,
+for those exciting four years at the <A HREF="http://www.nimr.mrc.ac.uk/">NIMR</A>
+during which DRAGON was designed and implemented. Special thanks are due
+to <A HREF="http://www.nimr.mrc.ac.uk/~mathbio/r-munro">Robin Munro</A>,
+the first user of DRAGON, whose help in testing the software proved invaluable.
+He also supported the good cause by setting up the <A HREF="http://www.nimr.mrc.ac.uk/~mathbio/a-aszodi/dragon.html">DRAGON
+homepage</A> and the <A HREF="ftp://glycine.nimr.mrc.ac.uk/pub/dragon">anonymous
+FTP site</A>. Nigel Douglas wrote the Sun ports and helped isolating some
+annoying bugs. Jan Hungersh&ouml;fer added support for running multiple
+slave processes on multiprocessor PVM nodes.
+<CENTER>
+<H2>
+<A NAME="preparing"></A>Preparing for a Simulation</H2></CENTER>
+Prior to a run, you have to make some preparations. First of all, DRAGON
+will need the <B>sequence</B> of your protein. Although a single sequence
+might be sufficient under extremely lucky circumstances, there is so much
+information to be gained from a <B><A HREF="#alignfnm">multiple alignment</A></B>
+that DRAGON expects you to supply one. It is also necessary to prepare
+a <B><A HREF="#Sstrfnm">secondary structure assignment</A></B> file for
+your target protein. This is the bare minimum. However, the program will
+appreciate if you also supply <B><A HREF="#Restrfnm">distance restraints</A></B>
+which you might have obtained from your friends in the NMR lab, or from
+other experimental sources. If you know for sure that a given residue is
+on the surface of the molecule then you can also prepare an <B><A HREF="#Accfnm">accessibility</A></B>
+file. Best of all, if the structures of some of the homologous sequences
+in the multiple alignment is known, then you can attempt <B><A HREF="#Homfnm">homology
+modelling</A></B> by giving DRAGON the corresponding structures in PDB
+format. The names of all these files have to be specified in the <B><A HREF="#parameters">parameter
+file</A></B>, together with other options and numerical parameter values.
+<CENTER>
+<H3>
+The multiple alignment</H3></CENTER>
+Using your favourite database and search method, collect sequences which
+are homologous to your target. It is usually a good idea to incorporate
+<I>distant</I> homologs into the multiple alignment since a bunch of almost
+identical sequences would not provide any extra information. The main aim
+of the alignment is to pinpoint truly conserved residues: DRAGON relies
+very heavily on conserved features. Since the program's speed will not
+be influenced by the number of sequences in the alignment, try to collect
+as many sequences as possible.
+
+<P>Once you selected the sequences, perform the alignment. Unfortunately
+DRAGON will not do this for you; you have to use a separate sequence alignment
+program. With due respect, do not take the results for granted, no matter
+how famous the author of the alignment program might be: silly things can
+(and will) happen. The best is to use an alignment program with a good
+graphical interface that lets you after-edit the raw results. Experiment
+with various similarity matrices and gap penalties. If in doubt, prepare
+a few different alignments.
+
+<P>Several decades of research into biological sequences provided mankind
+with a plethora of sequence alignment formats. DRAGON can read a relaxed
+version of the <B>GCG</B> format (MSF), a PIR alignment format or a horrible
+vertical format, which is similar to the output of <TT>MULTAL</TT>. I regret
+that currently no other formats are acceptable.
+<CENTER>
+<H3>
+Secondary structure assignment</H3></CENTER>
+DRAGON cannot predict secondary structure at the moment; it used to have
+a module for that purpose but that did not really work so until we come
+up with something truly snazzy, you'll have to do the assignment yourself.
+NMR experiments could usually provide very good secondary structure assignments.
+If you have no access to NMR data, then the secondary structure must be
+predicted in some way. The auxiliary program <TT>secmap</TT> is provided
+to map secondary structure information from scaffold structures onto the
+target sequence using the multiple alignment if you do homology modelling.
+<CENTER>
+<H4>
+<A NAME="secmap"></A>Using the secmap program</H4></CENTER>
+This is how you invoke the program:-
+
+<P><TT>secmap alignment_file target_no DSSP_file [ DSSP_file ...]</TT>
+
+<P>where <TT>alignment_file</TT> is the same alignment you plan to use
+for modelling, <TT>target_no</TT> is the number of the target sequence
+in the alignment, the <TT>DSSP_file</TT>s (of which at least one is mandatory)
+contain the secondary structure assignments for the scaffold structures
+as generated by the <TT>DSSP</TT> program of Kabsch and Sander (not supplied).
+<TT>secmap</TT> then works out the secondary structure assignment for each
+residue in the target sequence and prints an output like this:-
+
+<P><TT># >> Align_: Trying MULTAL format...</TT>
+<BR><TT># >> Align_: MULTAL parsing successful, seqno=8</TT>
+<BR><TT># Alignment file: lact/la.aln</TT>
+<BR><TT># Target sequence number = 2</TT>
+<BR><TT># Scaffold: "lact/1ALC.dssp", sequence number = 1</TT>
+<BR><TT># Scaffold: "lact/1HEL.dssp", sequence number = 5</TT>
+<BR><TT>- [---] - - -</TT>
+<BR><TT>...</TT>
+<BR><TT>R [ 1]</TT>
+<BR><TT>I [ 2]</TT>
+<BR><TT>...</TT>
+<BR><TT>I [ 5] h h h</TT>
+<BR><TT>...</TT>
+<BR><TT>L [ 12] h h</TT>
+<BR><TT>K [ 13] non-cons! 3 h</TT>
+<BR><TT>...</TT>
+<BR><TT>L [ 43] 52aB---- 52aB---- 52aC----</TT>
+<BR><TT>N [ 44] 51aB---- 51aB---- 51aC----</TT>
+<BR><TT>Y [ 45] 50aB---- 50aB---- 50aC----</TT>
+<BR><TT>Y [ 46]</TT>
+<BR><TT>- [---] - - -</TT>
+<BR><TT>- [---] - -</TT>
+<BR><TT>N [ 47]</TT>
+<BR><TT>G [ 48]</TT>
+<BR><TT>S [ 49]</TT>
+<BR><TT>S [ 50] 45aB---- 45aB---- 45aC----</TT>
+<BR><TT>S [ 51] 44aB 58a 44aB 58a 44aC 58a</TT>
+<BR><TT>H [ 52] 43aB 57a 43aB 57a 43aC 57a</TT>
+<BR><TT>G [ 53]</TT>
+<BR><TT>L [ 54]</TT>
+<BR><TT>F [ 55]</TT>
+<BR><TT>Q [ 56]</TT>
+<BR><TT>I [ 57] 52aB---- 52aB---- 52aC----</TT>
+<BR><TT>N [ 58] 51aB---- 51aB---- 51aC----</TT>
+<BR><TT>Q [ 59]</TT>
+<BR><TT>...</TT>
+
+<P>The first two columns list the amino acids in the target sequence, with
+the positions in square brackets. The character <TT>'-'</TT> indicates
+that the target is gapped at that position. The next column is the mapped
+secondary structure assignment, the following columns contain the secondary
+structure assignments from the given scaffold DSSP files. The characters
+'3', 'h', 'p' in the middle of the assignment columns indicate 3/10-, alpha-
+and pi-helices, respectively, any other capital letter stands for a beta-sheet
+ID (as defined in the DSSP files). For beta assignments, the numbers before
+and after the sheet ID show the partner amino acids in the neighbouring
+strands, 'a' and 'p' indicate antiparallel and parallel orientation, respectively.
+Note that in some cases the warning "non-cons!" is printed in the mapped
+assignment, indicating that the mapping is inconsistent, ie. not all scaffolds
+have the same secondary structure at that particular position. This is
+usually an indication of an alignment problem.
+
+<P>It would be nice if <TT>secmap</TT> could print the mapped assignment
+in the format required by the <A HREF="#Sstrfnm">Sstrfnm</A> parameter.
+However, there are two reasons why this is not so. First, it would be damn
+complex to teach <TT>secmap</TT> how to handle bifurcating sheets. Second,
+you are forced to <I>think</I> about the secondary structure assignment
+while you are constructing the Sstrfnm file. Getting it right is crucial.
+<CENTER>
+<H4>
+Automatic secondary structure prediction methods</H4></CENTER>
+These can also be used but treat the results with even more suspicion than
+you would the raw multiple alignments. If in doubt, try several assignments.
+This "semi-combinatorial" approach is necessary if the protein contains
+beta-sheets and the topology of the sheets are unknown since DRAGON needs
+to know which strand is H-bonded to which strand. Note that you may specify
+weights between 0.0 and 1.0 for each secondary structure element (but not
+to individual residues) to indicate the uncertainty of the assignment to
+the program.
+<CENTER>
+<H3>
+Distance restraints</H3></CENTER>
+The classic source for distance restraints is an NMR experiment. Since
+DRAGON uses a reduced chain representation internally, distances can be
+specified only between C-alpha-atoms or non-hydrogen atoms in the side
+chains. This is usually not a serious problem because we are interested
+in the correct fold rather than the fine details of side-chain conformation.
+
+<P>If you know the whereabouts of disulfide bridges in your protein, then
+these can easily be encoded into distance restraints. Also, if someone
+has determined the distances between lysines on the surface of the molecule
+by crosslinking with bifunctional diimidates, his data could be used immediately.
+Surface residue distances can also be deduced from fluorescence energy
+transfer experiments. For all distance restraints, a lower and upper bound
+may be specified, together with a weight between 0 and 1 which tells the
+program how reliable that restraint is (restraints with weight 0 are ignored
+completely, with weight 1 are enforced very strictly).
+<CENTER>
+<H3>
+Accessibility data</H3></CENTER>
+In the absence of any external information, DRAGON attempts to bury hydrophobic
+residues in the core of the molecule and moves hydrophilic residues towards
+the surface. This simple heuristics can be complemented by providing a
+list of residues which are known to be on the surface or in the interior.
+A good example is when a residue is known to be glycosylated, which means
+it has to be on the surface. The same logic applies to hydrophobic residues
+known to be involved in ligand binding. These residues should be specified
+in the accessibility file (see the <TT><A HREF="#Accfnm">Accfnm</A></TT>
+parameter).
+<CENTER>
+<H3>
+Homology modelling</H3></CENTER>
+If there is at least one protein in the multiple alignment whose structure
+is known, DRAGON will attempt to use it as a scaffold for the target. To
+this end, the scaffold structures have to be provided in PDB format and
+the PDB filename has to be specified (see the <TT><A HREF="#Homfnm">Homfnm</A></TT>
+parameter). DRAGON will extract the sequences from the PDB file, automatically
+locate the sequences in the input alignment and then will deduce appropriate
+distance restraints for the model from the known structures. Care must
+be taken to ensure that the sequence of the PDB file, which will be deduced
+from the <TT>ATOM</TT> records and <FONT COLOR="#FF0000">NOT </FONT>from
+the <TT>SEQRES</TT> records, matches the sequence in the alignment. If
+DRAGON notifies you that it could not find the corresponding structure,
+then check the alignment and the PDB file of the known structure.
+
+<P>Homology-derived restraints will be selected by specifying two additional
+parameters, <TT><A HREF="#Maxdist">Maxdist</A></TT> and <TT><A HREF="#Minsepar">Minsepar</A></TT>.
+The former is a C-alpha distance cutoff: only residue pairs closer than
+this threshold will provide restraints. The latter chooses a minimal sequential
+separation between the residue pairs.
+<CENTER>
+<H3>
+What DRAGON will not do for you</H3></CENTER>
+I really wanted this program to be perfect. However...
+<OL>
+<LI>
+DRAGON works with a <FONT COLOR="#FF0000">single protein chain</FONT> only.
+No other biopolymers or non-polypeptide molecules can be handled by the
+program.</LI>
+
+<LI>
+DRAGON cannot model <FONT COLOR="#FF0000">fine details</FONT> because there
+is no full-atom representation inside it. You can get some reasonable folds,
+but these have to be refined by a suitable modelling method if atomic details
+are needed.</LI>
+
+<LI>
+It will not be able to model <FONT COLOR="#FF0000">large proteins</FONT>.
+The hydrophobic-core building heuristics cannot handle multiple domains
+or multiple cores at present. You might consider breaking up your big protein
+and attempt modelling on a domain-by-domain basis.</LI>
+
+<LI>
+It will not model <FONT COLOR="#FF0000">membrane proteins</FONT>. The reason
+is the core building bit again: it was designed for water-soluble proteins
+only.</LI>
+
+<LI>
+Proteins composed of more than one polypeptide chain (oligomers) cannot
+be modelled.</LI>
+
+<LI>
+Although there is a ``homology-modelling'' option, DRAGON will not give
+you the <FONT COLOR="#FF0000">high-quality models</FONT> produced by the
+best specialised packages. This option is most useful when the multiple
+alignment was constructed from a threading output and you need a rough
+fold rather than a high-precision full-atom model.</LI>
+</OL>
+
+<HR>
+<CENTER>
+<H2>
+<A NAME="running"></A>Running a simulation</H2></CENTER>
+At the beginning of the simulation, DRAGON constructs an internal representation
+of the target from the multiple alignment, reads all parameters and data
+files, smooths the distance bounds, then generates a random C-alpha distance
+matrix. The seed for the random number generator is specified in the parameter
+<TT><A HREF="#Randseed">Randseed</A></TT>. When this number is 0, then
+the current system time is used as the seed and consequently it will be
+different for every run. If <TT>Randseed</TT> is nonzero, then two repeated
+runs will give identical results since the same seed will be used for initialisation.
+This option is mainly for debugging.
+<CENTER><IMG SRC="gradproj.gif" SGI_SRC="/raid1/usr/people/andras/dragon4/doc/gradproj.gif"  ALIGN=CENTER></CENTER>
+
+<CENTER><I>Overview of the gradual projection cycle.</I></CENTER>
+
+
+<P>In the first stage of the iteration, the restraints are applied to the
+matrix and it is then embedded into a D>3-dimensional Euclidean space.
+Various refinements are performed here, then the distance matrix is reconstructed
+and the process is repeated until a 3-dimensional embedding is achieved.
+In the second part of the simulation, the 3D structure is refined and the
+best structure found so far is saved. The embedding is repeated once more
+if no good structures were found in the last 5 iterations. The 3D iterations
+are performed <TT><A HREF="#Maxiter">Maxiter</A></TT> times, then the final
+result is saved to disk. You get a one-line report on the reason for termination:
+normally this says
+
+<P>"<TT>EXIT: no further improvement on 3D reprojection</TT>''.
+
+<P>As with all Distance Geometry-based methods, a good exploration of the
+conformational space is essential. Once you made sure your parameters make
+sense and obtained some promising conformations, repeat the runs, starting
+from a different random distance matrix each time setting the <TT>Randseed</TT>
+parameter to 0. (I tend to do at least 20 parallel simulations.) Go through
+the results carefully, cluster them into families, perform more runs if
+necessary.
+<CENTER>
+<H3>
+Modes of Operation</H3></CENTER>
+DRAGON can be run in a variety of modes. The standard way of doing things
+is to invoke the program in <B>interactive mode</B>, when commands can
+be typed directly at the keyboard and the output is produced on the terminal.
+The commands can be collected in ASCII command files and the program be
+run in <B>command-file mode</B> either by specifying the command file on
+the command line, or by piping the contents to the standard input of DRAGON,
+or by invoking the <TT>c[ommand]</TT> command in interactive mode. Mainly
+for testing purposes, the program can be started in <B>parameter-run mode</B>
+when a parameter file has to be specified on the terminal. To complicate
+matters even further, DRAGON may also be run in parallel.
+<CENTER>
+<H4>
+Interactive mode</H4></CENTER>
+In this mode, DRAGON accepts commands from the keyboard. When the program
+is started, the prompt <TT>DRAGON></TT> is displayed. The commands can
+then be typed directly. There is no command history facility. A run can
+be interrupted by pressing <TT>Ctrl-C</TT> (SGI machines only?) and the
+program exits on the <TT>q[uit]</TT> command.
+<CENTER>
+<H4>
+Command mode</H4></CENTER>
+A command file can be specified by invoking the program as
+
+<P><TT>dragon -c</TT> <I>command_file</I> [<I>other options...</I>]
+
+<P>where the file <I>command_file</I> may contain comments, commands and
+parameter name-value pairs, one per line. If the file cannot be found or
+opened, then the program starts up in interactive mode. Command files may
+be nested using the <TT>c</TT> <I>nested_file</I> command up to 16 levels
+deep. This is especially useful for performing a large number of simulations
+when a few parameters have to be changed systematically.
+
+<P>The contents of command files can also be piped or redirected to DRAGON
+using the standard UNIX mechanisms. This facility is provided for those
+who are willing to create a graphical user interface for the program.
+<CENTER>
+<H4>
+Parameter run mode</H4></CENTER>
+The program can be asked to read a parameter file <I>parameter_file</I>
+and perform <I>run_no</I> simulations by invoking
+
+<P><TT>dragon -p</TT> <I>parameter_file</I> [<TT>-r</TT> <I>run_no</I>]
+
+<P>If the <TT>-r</TT> option is omitted then just one simulation is performed
+which is mainly useful for testing that the parameter file is OK before
+attempting a long simulation session with it. 
+<CENTER>
+<H3>
+Parallel Processing</H3></CENTER>
+For a given set of parameters, it is advisable to repeat the simulation
+runs several times (each time starting with a different random distance
+matrix) to sample the set of conformations which satisfy the restraints.
+These runs can be performed in parallel on a multiprocessor machine using
+the <B>multiprocess</B> option, or on a network of UNIX workstations running
+<B>PVM</B>.
+<CENTER>
+<H4>
+Multiple processes</H4></CENTER>
+When invoked with the <TT>-m</TT> option,
+
+<P><TT>dragon -m</TT> <I>procno</I> [<I>other options...</I>]
+
+<P>DRAGON spawns <I>procno</I> child processes when the <TT>r[un]</TT>
+command is issued. <I>procno</I> should be larger than 1. These child processes
+then execute in parallel in the background and perform the simulations.
+The output is sent to logfiles, one file per simulation. The original parent
+process handles the communication with you exactly in the same way as in
+a serial run, and kills the child processes once they finished the calculations.
+This option, although available on single processors as well, is best used
+on a multiprocessor machine. There is practically no extra I/O overhead
+since the internal data structures are fully set up when the parent process
+spawns the children, and they inherit the data automatically. Note that
+the code was not optimised for multiprocessor machines, and there is no
+load balancing.
+<CENTER>
+<H4>
+PVM support</H4></CENTER>
+<B>PVM</B>, which stands for <B>P</B>arallel <B>V</B>irtual <B>M</B>achine,
+is free software originally developed at the Oak Ridge National Laboratory.
+It supports a flexible message-passing protocol on a network of heterogeneous
+UNIX computers which are linked by PVM so that they appear as a parallel
+computer to the program linked with the PVM library. If you plan to use
+PVM, it is a good idea to prepare a <B>hostfile</B> for DRAGON where the
+working directory is specified as DRAGON's home directory, <I>e.g.</I>
+for the machine <TT>george</TT> and user Joe Bloggs you would like to specify
+something like this:-
+
+<P><TT>george wd=/usr/people/joebloggs/dragonhome</TT>
+
+<P>otherwise the default data files will not be found. See also the PVM
+manuals.
+
+<P>To enable PVM support, invoke DRAGON with the <TT>-M</TT> flag:-
+
+<P><TT>dragon -M</TT> [<I>other options...</I>]
+
+<P>This starts the program as the master on the local computer, and then
+spawns slaves as PVM tasks on all the other nodes in the virtual machine.
+On multiprocessor nodes, DRAGON checks the number of processors and the
+average load, and launches as many slaves as necessary to fill the machine
+up completely :-). E.g. on an 8-processor machine with an average load
+of 5.0, 3 slaves will be started. The slaves will automatically re-nice
+themselves to priority 10 to get out of the way as much as possible. The
+master writes the following information to stdout after each slave was
+launched:-
+
+<P><TT>Slave (1/2) [4022e] started on host machine.domain.edu</TT>
+
+<P>this means that slave 1 out of 2 possible slaves with a task ID 4022e
+was launched on "machine.domain.edu". The number of possible slaves may
+vary for a given machine, depending on the overall load, but will never
+exceed the number of available CPU-s.
+
+<P>The master task will communicate with you and when you request a simulation
+with the <TT>r[un]</TT> command, the master will inspect the status of
+the virtual machine, re-spawns slaves if necessary and then broadcasts
+the parameters to the slaves. Once they reported back that all data have
+been received, the master starts assigning the runs to the slaves, one
+by one. Each run is sent to the first available slave: this way, if your
+virtual machine is composed of faster and slower computers, the faster
+machines will do most of the job. Simulation output is redirected to logfiles,
+however, there is one logfile per slave (as opposed to the multiprocess
+option where one logfile per run is generated). Logfile names have the
+form <B>xxxxx@hostname</B>, where <I>xxxxx</I> is a hexadecimal number
+(the PVM task ID for the slave) and <I>hostname</I> is the name of the
+actual computer that slave was running on. The master periodically writes
+to the standard output to inform you about the status of the slaves. If
+a slave crashes (this should not happen), its job will be re-sent to another
+slave. DRAGON is smart enough to take notice of any changes you make to
+the virtual machine. If nodes are added, new DRAGON slaves will soon be
+spawned on them, upon the removal of nodes the half-finished tasks will
+be re-started on the remaining nodes as soon as possible.
+
+<P>Note that if PVM is <FONT COLOR="#FF0000">not</FONT> running on your
+computer, then the following uninformative error message may be printed
+several times to the standard error:-
+
+<P><TT>libpvm [pid4138]: /tmp/pvmd.761: No such file or directory</TT>
+
+<P>which may be safely ignored. DRAGON automatically detects the situation
+and will run in single-processor mode.
+
+<P>A few tips to avoid disappointment with the PVM support option:-
+<OL>
+<LI>
+Do read the PVM manual (Version 3).</LI>
+
+<LI>
+Specify the working directory for each node in the virtual machine. DRAGON
+puts all its output in the current directory. This sometimes does not work
+with PVM 3.3.10., so do not be surprised if your results end up in your
+home directory.</LI>
+
+<LI>
+Signal processing may not work faultlessly under PVM. While the master
+DRAGON task still catches <TT>SIGINT</TT> (Ctrl-C) and sends it to the
+slaves, surprises cannot be excluded.</LI>
+
+<LI>
+Both the master and the slaves sleep for 1-second intervals between checking
+their message queues. This causes occasional slight delays, <I>e.g.</I>
+the runs don't seem to start immediately after you issue the <TT>r[un]</TT>
+command, but in fact a lot of CPU cycles are saved by this trick when the
+tasks are idle.</LI>
+
+<LI>
+Always make sure you don't slow down other people's machines without their
+permission by running DRAGON under PVM on them.</LI>
+</OL>
+
+<CENTER>
+<H3>
+Screen Output</H3></CENTER>
+While running, DRAGON entertains you with a considerable amount of screen
+output. It is a good idea to redirect both the standard output and standard
+error to a logfile when doing longer runs. If the program is in parallel
+mode, then the same listing automatically goes to the logfiles (see above).
+A brief and by no means exhaustive explanation of the various messages
+follows below, in the order you will encounter them during a normal run.
+
+<P><TT>Good morning!</TT>
+<BR><TT>Welcome to DRAGON 4.17.8-n32 [May 15 1998, 11:39:20]</TT>
+<BR><TT>Algorithms by William R. Taylor &amp; Andr&aacute;s Asz&oacute;di</TT>
+<BR><TT>Implementation by Andr&aacute;s Asz&oacute;di</TT>
+<BR><TT>(C) 1993-1997. All rights reserved.</TT>
+
+<P><TT>PVM: supported</TT>
+<BR><TT>OpenGL graphics: supported</TT>
+
+<P>The program greets you with a version and copyright information listing.
+Note that the ABI is indicated right after the version number.
+
+<P><TT>>>Align_: Trying MULTAL format...</TT>
+<BR><TT>>>Align_: MULTAL parsing successful, seqno=8</TT>
+
+<P><TT>=== THE MODEL CHAIN ===</TT>
+
+<P><TT># No. of sequences = 8, model = Seq. #1, no. of residues = 75</TT>
+<BR><TT># Aa Cons Phob Brad Acdist</TT>
+<BR><TT>1 K 0.0714 0.03 2.67 4.06</TT>
+<BR><TT>2 S 0.288 0.49 1.94 2.01</TT>
+<BR><TT>3 P 0.398 0.18 2.21 1.97</TT>
+<BR><TT>...</TT>
+<BR><TT>=== THE MODEL CHAIN ===</TT>
+
+<P><TT># No. of sequences = 8, model = Seq. #1, no. of residues = 75</TT>
+<BR><TT>--KSPEE--- -LKGIFEKYA AKEGDPNQLS KEELKLLLQT EFPSLLK--- GPSTLDELFE</TT>
+<BR><TT>----SEEMIA EFKAAFDMFD --ADGGGDIS TKELGTVMR- MLG---QNPT KEEL-DAIIE</TT>
+<BR><TT>---LAKKSNE ELEAIFKILD --QDKSGFIE DEELELFLQ- NFSAGARTLT KTET-ETFLK</TT>
+<BR><TT>---MKETDSE MIREAFRVFD --KDGNGVIT AQEFRYFMV- HMG---MQFS EEEV-DEMIK</TT>
+<BR><TT>---LSSKSAD DVKNVFAILD --QDRSGFIE EEELKLFLQ- NFSASARALT DAET-KAFLA</TT>
+<BR><TT>-PSQMEHAME TMMLTFHRFA ---GEKNYLT KEDLRVLMER EFPGFLENQK DPLAVDKIMK</TT>
+<BR><TT>-----EAMQE ELREAFRLYD --KQGQGFIN VSDLRDILR- ALD---DKLT EDEL-DEMIA</TT>
+<BR><TT>MCSSLEQALA VLVTTFHKYS CQEGDKFKLS KGEMKELLHK ELPSFVGEKV DEEGLKKLMG</TT>
+
+<P><TT>ELDKNGDGEV SFEEFQVLVK KISQ------ --------</TT>
+<BR><TT>EVDEDGSGTI DFEEFLVMMV RQMKEDA--- --------</TT>
+<BR><TT>AGDSDGDGKI GVDEFQKLVK A--------- --------</TT>
+<BR><TT>EVDVDGDGEI DYEEFVKMMS NQ-------- --------</TT>
+<BR><TT>AGDSDGDGKI GVEEFQSLVK P--------- --------</TT>
+<BR><TT>DLDQCRDGKV GFQSFLSLVA GLIIACNDYF VVHMKQKK</TT>
+<BR><TT>EIDTDGSGTV DFDEFMEMMT G--------- --------</TT>
+<BR><TT>NLDENSDQQV DFQEYAVFLA LITVMCNDFF QGCPDRP-</TT>
+<BR>&nbsp;
+
+<P><TT># Target Cons Phob Brad Acdist Alignment</TT>
+<BR><TT>1 K 0.0714 0.03 2.67 4.06 -------M</TT>
+<BR><TT>2 S 0.288 0.49 1.94 2.01 -----P-C</TT>
+<BR><TT>3 P 0.398 0.18 2.21 1.97 K----S-S</TT>
+<BR><TT>4 E 0.78 0.01 2.47 3.4 S-LMLQ-S</TT>
+<BR><TT>5 E 0.612 0.01 2.47 3.4 PSAKSM-L</TT>
+<BR><TT>6 L 0.647 2.56 2.6 2.82 EEKESEEE</TT>
+
+<P>First the multiple alignment is read and parsed, then the model chain
+parameters are listed. <TT>Target</TT> is the one-letter amino acid code,
+<TT>Cons</TT> is the conservation at the given position, <TT>Phob</TT>
+is the average hydrophobicity of the position (which is not the same as
+the hydrophobicity of the amino acid in the master sequence), <TT>Brad</TT>
+is the radius of the fake C-beta atom representing the side chain, <TT>Acdist</TT>
+is the distance between the C-alpha atom and the centroid of the side chain.
+<TT>Alignment</TT> lists all residues in the same position. The program
+then lists the restraints, accessibilities and secondary structure assignments
+in the same format as their corresponding input files (see below). Look
+for error messages here as they indicate input file formatting problems.
+
+<P><TT>RUN 1 STARTED: Fri 04-Apr-1997 11:55:41</TT>
+<BR><TT># Randseed=117</TT>
+<BR><TT>nonlin11_reg():.......................................Done</TT>
+<BR><TT>Q=2.359e-02, Stepno=27, t-stat=2.600e-02</TT>
+<BR><TT>D=-9.793e+00 * H^6.619e-01 + 2.809e+01</TT>
+<BR><TT>...</TT>
+
+<P>The <TT>Randseed</TT> value is the actual <I>long</I> number used for
+initialising the random number generator. When in parallel mode, this number
+gets "spiced'' with a combination of the process ID and system time to
+avoid identical parallel runs. The nonlinear regression is used to calculate
+the distance distribution for residue pairs with unknown distances; the
+data are shown for decorative purposes only.
+
+<P><TT>SMUP: 4</TT>
+<BR><TT>SMLOW: 3, triangle violations=0</TT>
+
+<P>These two lines show how many cycles were used for upper- and lower-bound
+restraint smoothing. If the number of violations is larger than zero, you
+might consider checking your restraint file for mistakes.
+
+<P><TT>CYCLE: 5 (61%, 42 secs)</TT>
+<BR><TT>DIST: BD=1.965e-02, NB=1.640e-06, RS=7.094e-03, SC=1.569e+00, AC=1.500e+00</TT>
+<BR><TT>PROJ: Dim=6, Df=1.003e+00, STR=7.927e-04</TT>
+<BR><TT>TNGL: 0 (cyc=3)</TT>
+<BR><TT>EUCL: IN=1.955e-05 ALL=1.408e-03</TT>
+<BR><TT>EUCL: BD=7.263e-04, NB=2.156e-05, RS=1.137e-01, SC=4.703e+00, AC=1.792e+00</TT>
+
+<P>This is what you see during high-dimensional iteration. The <TT>DIST</TT>
+and the second <TT>EUCL</TT> lines list the scores during distance matrix
+and Euclidean space adjustments, respectively. <TT>BD</TT> is the virtual
+bond score (between first and second neighbours), <TT>NB</TT> is the non-bond
+score (bumps between anyone else), <TT>RS</TT> is the external restraint
+score, <TT>SC</TT> is the secondary structure score, <TT>AC</TT> is the
+accessibility score. The first <TT>EUCL</TT> line lists intermediary adjustment
+scores (to be ignored). The <TT>PROJ</TT> line shows the new embedding
+dimension, the isotropic density adjustment factor (which is usually very
+close to 1.0 except in the first embedding) and the Spectral Gradient "stress''
+value between the actual distance matrix of the projected structure and
+the initial distance matrix (the lower, the better). The <TT>TNGL</TT>
+line shows the number of remaining tangles after some detangling cycles.
+You would like to see 0 here.
+
+<P><TT>HAND: (secstr) Good:Bad=1:4 (2:32)</TT>
+<BR><TT>DIST: BD=2.211e-01, NB=7.904e-04, RS=5.051e-02, SC=2.517e+00, AC=7.493e-01</TT>
+<BR><TT>PROJ: Dim=3, Df=1.019e+00, STR=2.103e-03 , flip</TT>
+<BR><TT>TNGL: 0 (cyc=0)</TT>
+<BR><TT>EUCL: IN=2.124e-05 2oSTR=1.061e+00 ALL=2.584e-03</TT>
+<BR><TT>** BEST: BD=5.237e-02, NB=0.000e+00, RS=3.433e-02, SC=2.185e+00,
+AC=7.400e-01</TT>
+
+<P>This is the 3D iteration output. <TT>HAND</TT> shows the results of
+the overall handedness checks which are done by inspecting the chirality
+of the secondary structure elements. If more "bad'' than "good'' chiralities
+are found, then the structure is "flipped'' after projection (reflected
+through its centroid) to get the chiralities right. Note that the <TT>HAND</TT>
+line looks slightly different during homology modelling because in that
+case the correct overall chirality is obtained from a comparison to a scaffold
+structure. The rest of the output is similar to the high-dimensional lines.
+However, you want to see a <TT>**BEST</TT> line here, which indicates that
+a good conformation has been found and saved.
+
+<P><TT>EXIT: no further improvement on 3D reprojection</TT>
+<BR><TT>TIME: 58 secs</TT>
+<BR><TT>END: BD=2.875e-04, NB=3.286e-04, RS=6.409e-04, SC=1.354e+00, AC=8.160e-01,
+Itno:20=6+14</TT>
+<BR><TT>SAVE: 3icb_test_1.pdb</TT>
+<BR><TT>VIOLS: 3icb_test_1.viol</TT>
+
+<P>When the simulation finishes, the <TT>EXIT</TT> line gives you the reason
+for termination. The <TT>TIME</TT> line prints the total time used for
+this run. The <TT>END</TT> line lists the scores of the best conformation
+once again, and the <TT>Itno</TT> field gives a summary of the cycles used
+in the high-dimensional and 3D iterations. <TT>SAVE</TT> and <TT>VIOLS</TT>
+list the names of the result and violation files.
+
+<P>Occasional warning and error messages, indicating the class and method
+where the problem occurred, plus a very brief and often uninformative description,
+may also be printed to the standard error during the run. <B>Warnings</B>
+are preceded by a question mark <TT>`?'</TT> and are quite likely to occur
+at the beginning, if one of the input files is incorrectly formatted. Sometimes
+you get one or more warnings like this before a projection step:-
+
+<P><TT>? centre_dist(): Cdist2[32]=-1.164e+01</TT>
+
+<P>These indicate non-metricity in the distance matrix and can safely be
+ignored unless there are too many of them. Another quite innocent warning
+is sometimes printed by the Spectral Gradient optimisation:-
+
+<P><TT>? Specgrad_::iterate(Maxiter=30, Eps=2.000e-02): No convergence</TT>
+<BR><TT>? Steric_::adjust_xyz(SPECGRAD): no convergence</TT>
+
+<P>Do not worry, DRAGON switches to another, more robust optimisation when
+Spectral Gradient does not converge.
+
+<P>What you definitely do not want to see is a <B>fatal error message</B>,
+preceded by an exclamation mark <TT>`!'</TT>. Theoretically, they should
+never occur. If they do, then a coredump usually follows, and even if you
+get a model in the end, it is best to throw it away.
+<BR>
+<HR>
+<CENTER>
+<H2>
+<A NAME="after"></A>After the Simulation</H2></CENTER>
+The output from DRAGON is just the skeleton of your molecule: a C-alpha
+backbone and dummy C-beta atoms corresponding to the centroids of the side
+chains. What's more, every run will give you (slightly) different conformations.
+What to do now? First of all, have a look at your raw models with a suitable
+visualisation program. The best pattern recognition machine known to us
+is still the human visual system. Throw away mercilessly any models which
+look bad. Check tangles carefully.
+<CENTER>
+<H4>
+Violation files</H4></CENTER>
+These are generated for each output file at the end of the run and contain
+a listing of constraint violations which fall into three categories. <TT>BOND</TT>
+restraints are the distances between first and second-neighbour C-alpha
+atoms, <TT>NONBD</TT> restraints are minimal van der Waals distances. External
+restraint violations (coming from NMR or homology modelling) belong to
+the <TT>RESTR</TT> category, deviations from the ideal secondary structure
+are shown as <TT>SECSTR</TT>. The violation files look like this:-
+
+<P><TT># Atom pair Type Actual Ideal (Strict) Rel.viol Error</TT>
+<BR><TT>CA[ 42]: CA[ 41] BOND 3.40 &lt; 3.80 (2.97) 0.31 10.4 %</TT>
+
+<P>where the relative violation column is the error multiplied by the strictness
+and therefore could look frightening for C-alpha:C-alpha violations which
+have a high weighting. To calm your nerves, read the last column only.
+However, you should not see any <TT>BOND</TT> violations and only a few
+<TT>NBOND</TT> ones. If they do occur, then probably some of your external
+restraints were inconsistent or you have found a horrible new bug. <TT>RESTR</TT>
+and <TT>SECSTR</TT> violations are more common. Check these carefully,
+too: the deviations from ideal secondary structures may be OK if the model
+otherwise looks reasonable. Innocent violations below 5 % are not listed
+at all.
+<CENTER>
+<H4>
+<A NAME="rank"></A>Score ranking: the <TT>rank</TT> program</H4></CENTER>
+The final scores (which are the weighted sums of the relative violations
+in these categories) are stored as <TT>REMARK</TT>s in the output PDB files
+and can be used to filter out unacceptable conformations. An auxiliary
+program, <TT>rank</TT> is available which can read these remarks and then
+ranks the model structures according to various scoring criteria. Usage:-
+
+<P><TT>rank [-bnr] DRAGON_PDB_file(s)</TT>
+
+<P>The flags <TT>-b</TT>, <TT>-n</TT>, <TT>-r</TT> specify that the structures
+are to be sorted according to their bond, non-bond or restraint scores,
+respectively. The score flags may be combined, in which case all specified
+scores will be used in the ranking process.
+<CENTER>
+<H4>
+<A NAME="clumsy"></A>Clustering: the clumsy program</H4></CENTER>
+If the raw structures seem to be satisfactory, cluster them. I wrote a
+program called <TT>clumsy</TT> for that purpose, which is distributed together
+with DRAGON, but you are well advised to try other programs if you can
+since there are a great many clustering algorithms to choose from and <TT>clumsy</TT>
+may not be the ideal for your purposes. clumsy performs a pairwise rigid-body
+superposition on all of its input structures, constructs an RMS distance
+matrix, and then performs hierarchical clustering using the average similarity
+criterion to merge low-level clusters. Here is how to use it:-
+
+<P><TT>clumsy [-as] [-w window_len] [-c smooth_cycno] [-o output] PDB_files...</TT>
+
+<P>The options have the following meaning: <TT>-a</TT> causes all atoms
+to be used in the comparison (the default is C-alphas only), <TT>-s</TT>
+performs smoothing on the C-alpha trace with a window length and smooth
+cycle number specified by <TT>-w</TT> and <TT>-c</TT>, respectively. <TT>-o</TT>
+saves the average structure of the top cluster to the specified output
+file. The argument PDB files must have identical sequences and only the
+first chain from each file is used in the comparison. The program prints
+a dendrogram to the standard output with the coordinate RMS deviations
+between the clusters.
+
+<P>Clustering can detect outliers or the presence of fold families which
+satisfy the restraints equally well. Generate average structures for the
+clusters you like, or just pick one structure with the best scores from
+each cluster and use these as representative conformations.
+<CENTER>
+<H4>
+<A NAME="sidech"></A>Preparing all-atom models: the<TT> sidech </TT>program</H4></CENTER>
+Finally, put flesh onto the bones: add the missing atoms to the DRAGON
+structures. This is not a straightforward operation and requires sound
+judgment. Good molecular modelling packages will do the trick for you,
+and then you can apply your favourite energy minimisation method to the
+models (if you believe in the usefulness of energy minimisations, of course).
+
+<P>Start with building the main-chain from the C-alpha trace. We used the
+<TT>catomain</TT> program in Willie Taylor's lab, kindly provided by M.
+Levitt: this software is not included in the DRAGON suite. Once you have
+the main-chain complete with N, C and O, then you can use my <TT>sidech</TT>
+program to build partial sidechains using the original multiple alignment
+and the known structures if you did homology modelling. Usage:-
+
+<P><TT>sidech alignment mainchain homstruct outfile</TT>
+
+<P>where <TT>alignment</TT> is the original multiple alignment you used
+for the model construction, <TT>mainchain</TT> is the PDB file with the
+main-chain atoms of the model, <TT>homstruct</TT> contains the scaffold
+structures used for homology modelling (see <A HREF="#Homfnm">Homfnm</A>).
+The almost-all-atom model with the partial sidechains will be written to
+<TT>outfile</TT>. <TT>CHARMm</TT> can complete these sidechains, other
+modelling programs can perhaps do the whole story so that you might not
+need <TT>sidech</TT> at all.
+<BR>
+<HR>
+<CENTER>
+<H2>
+<A NAME="Command"></A>Command Reference</H2></CENTER>
+All commands are lowercase strings and the trailing characters enclosed
+in square brackets can be omitted (currently only the first character of
+the command name is significant). Command names and optional arguments
+are separated by whitespace. Commands can be specified in ASCII text files
+where only one command per line is allowed, or at the "<TT>DRAGON></TT>''
+prompt in interactive mode. Lines in command files beginning with the character
+<TT>#</TT> are interpreted as comments and ignored. Commands can also be
+piped to the standard input of DRAGON in which case care should be taken
+to separate them by newlines. Here are the commands in alphabetical order:-
+
+<P><TT>c[ommand]</TT> <I>command_file</I>
+<BR>Executes the commands in <I>command_file</I>. Command file calls can
+be nested up to the maximal depth of 16. If <I>command_file</I> is omitted
+then the program enters interactive mode. The number of "<TT>></TT>'' characters
+following the "<FONT COLOR="#008000">DRAGON</FONT>'' prompt indicates the
+current call depth.
+
+<P><TT>d[efault]</TT>
+<BR>Resets all parameters to their default values.
+
+<P><TT>h[elp]</TT>
+<BR>Prints a short help on all available commands. This command works in
+interactive mode only and is ignored when issued from within a command
+file.
+
+<P><TT>l[ist]</TT> <I>Param</I>
+<BR>Lists a short description and the value of parameter <I>Param</I> to
+the standard output. If <I>Param</I> is omitted, then all parameters are
+listed.
+
+<P><TT>o[s]</TT>
+<BR>Invokes an OS shell (your default). You can return to DRAGON by typing
+"<TT>exit</TT>" on the shell command line.
+
+<P><TT>p[aram]</TT> <I>parameter_file</I>
+<BR>Reads the parameter specifications in <I>parameter_file</I>. It is
+an error if the file cannot be opened. For the parameter description format,
+refer to the Parameters section below. A word of <B><FONT COLOR="#FF0000">warning</FONT></B>:
+parameters not specified in <I>parameter_file</I> <B><FONT COLOR="#FF0000">will
+retain their previous values</FONT></B>, sometimes causing confusion. You
+could either specify all parameters in your files, or you could issue a
+<TT>d[efault]</TT> command prior to reading in new parameters.
+
+<P><TT>q[uit]</TT>
+<BR>Quits DRAGON. If invoked in a nested command file, then execution of
+the file is terminated and control will be returned to the caller. DRAGON
+exits only if <TT>q[uit]</TT> was issued at the topmost level. Since execution
+automatically terminates at the end of command files anyway, <TT>q[uit]</TT>
+is mainly useful in interactive mode. The program politely asks for confirmation
+before exiting.
+
+<P><TT>r[un]</TT> <I>repetition</I>
+<BR>Performs the simulation <I>repetition</I> times using the current parameters
+but starting with a different random distance matrix each time. If <I>repetition</I>
+is omitted, then one simulation is carried out. Simulations can be interrupted
+by typing <TT>Ctrl-C</TT>. (Note: this feature is not supported when compiled
+with GCC.)
+
+<P><TT>s[ave]</TT> <I>parameter_file</I>
+<BR>Saves the parameters to <I>parameter_file</I> or to the standard output
+if <I>parameter_file</I> is omitted.
+<BR>
+<HR>
+<CENTER>
+<H2>
+<A NAME="parameters"></A>Parameters</H2></CENTER>
+Parameters can be specified in one of the following ways: at the <TT>DRAGON></TT>
+prompt in <B>interactive mode</B>, intermixed with commands in a <B>command
+file</B>, or in a dedicated <B>parameter file</B>. The name of the parameters
+always start with uppercase letters (to distinguish them from the <A HREF="#Command">commands</A>)
+and must be specified literally. The format of the parameter specification
+is always
+
+<P><TT>Param</TT> <I>value</I>
+
+<P>where <TT>Param</TT>, the parameter's name and its <I>value</I> are
+separated by whitespaces. Invalid parameter names and malformed parameter
+specifications are ignored silently.
+
+<P>There are two kinds of parameters: <B>numeric</B> parameters and <B>filename</B>
+parameters. The latter specify various ASCII files which either describe
+your modelling problem (such as the multiple alignment file or the secondary
+structure assignment) or they hold generic data necessary for the operation
+of DRAGON. These data files live in the subdirectory pointed to by the
+<TT>$DRAGON_DATA</TT> environment variable (usually the <TT>dragon4/data</TT>
+subdirectory).
+
+<P>For your convenience, all parameters have default values which will
+be used if <I>value</I> is missing or does not make any sense to the program.
+The values contained in the default data files are also hardwired into
+the program so it is possible to perform a run even if the files are missing
+or inaccessible. In addition to their default values, numeric parameters
+have a permitted range as well. If the <I>value</I> specified is outside
+the range, it will be adjusted silently to the closest upper (or lower)
+limit. All distance measurements are given in &Aring; units.
+<CENTER>
+<H3>
+Parameter file format</H3></CENTER>
+The parameter file is a simple ASCII text file and contains one parameter
+specification per line in the format described above. Empty lines are ignored
+and lines beginning with the character <TT>#</TT> are interpreted as comments.
+Comment lines and parameter specification lines can be freely mixed and
+the order of parameters is irrelevant. What's more, you don't have to specify
+all parameters, those which are not mentioned in the parameter file will
+simply retain their previous value.
+<CENTER>
+<H3>
+Parameter reference</H3></CENTER>
+Below follows the complete list of available parameters in alphabetical
+order. For those parameters whose values are file names, the format of
+the corresponding file is also given. All these files are simple ASCII
+text files, where empty lines are ignored and lines beginning with <TT>#</TT>
+are treated as comments.
+<H4>
+<A NAME="Accfnm"></A>Accfnm: Residue accessibility</H4>
+<B>Format</B>: <TT>Accfnm</TT> <I>filename</I>
+<BR><B>Default</B>: <I>none</I>
+
+<P>Residues which are known to be either on the surface or buried inside
+may be specified in this file. For these residues, the normal accessibility
+checks are suspended and DRAGON forces them either to the surface or to
+the interior.
+
+<P>The accessibility file consists of lines of the following format:-
+
+<P><I>access_code resno</I> [ <I>resno...</I> ]
+
+<P>where <I>access_code</I> is the letter <TT>s</TT> or <TT>S</TT> for
+surface residues, <TT>b</TT> or <TT>B</TT> for buried residues, followed
+by a whitespace-separated list of residue numbers (<I>resno</I>). More
+than one line of either kind may be specified in arbitrary order. DRAGON
+filters out those residues which do not fit into the target molecule or
+which were specified both as surface and buried and prints appropriate
+warnings.
+<H4>
+Adistfnm: Average atom distances</H4>
+<B>Format</B>: <TT>Adistfnm</TT> <I>filename</I>
+<BR><B>Default</B>: $DRAGON_DATA/DEFAULT.acd
+
+<P>Specifies the average distances of side-chain atoms from the C-alpha
+atoms and from the centroid of the side chain. The default file contains
+data derived from the Ponder/Richards rotamer library. The data in this
+file are used to convert interatomic distance restraints into restraints
+between C-alpha atoms and/or side-chain centroids to match the reduced
+representation of residues inside DRAGON. Since it is quite painful to
+construct this file, I do not give the format here. For all practical purposes
+the default values should be adequate.
+<H4>
+<A NAME="alignfnm"></A>Alignfnm: the multiple alignment file</H4>
+<B>Format</B>: <TT>Alnfnm</TT> <I>filename</I>
+<BR><B>Default</B>: $DRAGON_DATA/DEFAULT.aln
+
+<P>This is perhaps the most important parameter because you specify the
+sequence of your protein to be modelled as one of the sequences contained
+in the multiple alignment (see the <TT><A HREF="#masterno">Masterno</A></TT>
+parameter for details). The default alignment file is provided only as
+an example. Alignments may be specified in the <B>GCG</B> format (also
+known as multiple sequence format or <B>MSF</B>), or in <B>MULTAL</B> vertical
+format (which actually has a few <A HREF="#multalvar">variants</A>), or
+in <B>PIR</B> format.
+
+<P>The GCG format acceptable to DRAGON is more relaxed than the original.
+Here is the specification:-
+
+<P><TT>&lt;...any number of lines containing anything...></TT>
+<BR><TT>Name: first_seq_name Len: XXX</TT>
+<BR><TT>Name: second_seq_name Len: YYY</TT>
+<BR><TT>...</TT>
+<BR><TT>Name: last_seq_name Len: ZZZ</TT>
+<BR><TT>&lt;...any number of lines containing anything...></TT>
+<BR><TT>first_seq_name ..ALIG nM---eNT ...</TT>
+<BR><TT>second_seq_name ..ALIG nM...DNT ...</TT>
+<BR><TT>...</TT>
+<BR><TT>last_seq_name ..ALIG nM-X-eNT...</TT>
+<BR><TT>&lt;... any number of lines containing anything ...></TT>
+<BR><TT>first_seq_name ..ALIG nM---eNT ...</TT>
+<BR><TT>second_seq_name ..ALIG nM...DNT ...</TT>
+<BR><TT>...</TT>
+<BR><TT>last_seq_name ..ALIG nM-X-eNT...</TT>
+<BR><TT>&lt;... any number of lines containing anything ...></TT>
+
+<P>As you can see, both "<TT>.</TT>" and "<TT>-</TT>" are acceptable as
+gap characters, whitespaces are ignored and the amino acid codes may be
+lower- or uppercase. Each line can be at least as long as the maximal alignment
+length (2048 chars) if I counted the bytes correctly. The length specifications
+(<TT>XXX, YYY, ... ,ZZZ</TT>) need not be equal: DRAGON will use the largest
+as the alignment length.
+
+<P><A NAME="multalvar"></A>The only snag with the MULTAL format is that
+there is no such thing as <I>the</I> MULTAL format. There are subtle differences
+in the first few lines where the number and names of sequences are specified.
+Currently the following variants are recognised:-
+<OL>
+<LI>
+DRAGON format: The first non-comment line of the file should contain the
+line:</LI>
+
+
+<P><TT>Seqno</TT> <I>number_of_sequences</I>
+
+<P>and the sequence names are in general unspecified.
+<LI>
+MSAP format: The first non-comment lines of the file should look like this:</LI>
+
+
+<P><TT>Block 0</TT>
+<BR><I>number_of_sequences</I> <TT>seqs</TT>
+<BR><TT>USER>BS_HYDRO = Bean soup hydrolase</TT>
+<BR><TT>USER>NAC_DX = Nicotine deoxygenase</TT>
+<BR><TT>USER>ANOTH_SEQ = another sequence</TT>
+
+<P>where the sequence abbreviations after the <TT>USER></TT> keyword can
+be anything. This is what comes out from Willie Taylor's multiple sequence/structure
+alignment program MSAP. Note that currently there is a bug in some versions
+of MSAP which sometimes causes the loss of the last few amino acids from
+the aligned sequences.
+<LI>
+CAMELEON format:</LI>
+
+
+<P><TT>block 1 =</TT> <I>number_of_sequences</I> <TT>seqs</TT>
+<BR><TT>-----USER>BS_HYDRO = Bean soup hydrolase</TT>
+<BR><TT>-----USER>NAC_DX = Nicotine deoxygenase</TT>
+<BR><TT>-----USER>ANOTH_SEQ = another sequence</TT>
+
+<P>This is the "MULTAL output" of CAMELEON, the commercial implementation
+of MULTAL (by Oxford Molecular).</OL>
+To compensate for the confusion, the input method is not too pedantic:
+the capitalization and the number after the <TT>Block</TT> or <TT>block</TT>
+keyword is ignored and sequence names are not obligatory.
+
+<P>Once we got past this mess, the rest of the non-comment lines are alignment
+positions containing a string of 1-letter amino acid codes (upper- or lowercase)
+or the gap character "<TT>-</TT>". Warnings are printed if invalid characters
+are encountered and they will be replaced by "X" (meaning any amino acid).
+Here is a sample alignment file:-
+
+<P><TT>Seqno 6</TT>
+<BR><TT>-AAa-G</TT>
+<BR><TT>LLLIIL</TT>
+<BR><TT>RRE--K</TT>
+<BR><TT>...</TT>
+
+<P>The PIR format is relatively simple. All aligned sequences are listed
+after each other in PIR format, with gaps inserted in the appropriate places.
+The first line should contain the "<TT>>P1;</TT>" thing and the sequence
+name, the second line is a description which is ignored (but <FONT COLOR="#FF0000">must</FONT>
+be present), then follow the sequence lines, terminated with an asterisk.
+Again, lowercase letters are allowed, gaps can be '-' or '<TT>.</TT>' characters.
+Comment lines beginning with "<TT>#</TT>" are also allowed. If some of
+the sequences happen to have different aligned lengths, then you get a
+warning and the ends of the offending sequences will be padded up by gaps.
+Here is an example:-
+
+<P><TT>>P1;BS_HYDRO</TT>
+<BR><TT>Bean soup hydrolase</TT>
+<BR><TT>LFSR--GtHrS--QWETPY</TT>
+<BR><TT>THRSRLLK--*</TT>
+
+<P><TT>>P1;NAC_DX</TT>
+<BR><TT>Nicotine deoxygenase</TT>
+<BR><TT>TTLPTR-VVMFhASLK</TT>
+<BR><TT>LLYKHLDNNLaLA---WQD*</TT>
+<BR>.....
+
+<P>I despise hard-coded limits. However, there is an upper limit of 256
+sequences and 2048 positions built into the alignment module. In practice
+you should refrain from modelling proteins larger than about 300 residues,
+mainly because DRAGON cannot yet handle multidomain structures.
+<H4>
+Density: Residue density</H4>
+<B>Format</B>: <TT>Density</TT> <I>float</I>
+<BR><B>Default</B>: 0.00636
+<BR><B>Range</B>: 0.001 ... 0.012
+
+<P>This parameter specifies the number of C-alpha atoms per cubic &Aring;.
+The default value is an average calculated from a non-homologous set of
+well-resolved cytosolic proteins which is is surprisingly constant: you
+may use the default value with confidence if no better guess is available.
+<H4>
+Evfract: fraction of retained eigenvalues</H4>
+<B>Format</B>: <TT>Evfract</TT> <I>float</I>
+<BR><B>Default</B>: 0.999
+<BR><B>Range</B>: 0.00 ... 1.00
+
+<P>This parameter specifies the fraction of eigenvalues to be retained
+in each stage of the gradual projection. A low value means larger jumps
+in dimensionality towards 3D but embedding accuracy is reduced.
+
+<P>This parameter affects the run time needed for the first part of the
+simulations when DRAGON wanders around in high-dimensional spaces. See
+<TT><A HREF="#Maxiter">Maxiter</A></TT> to get an idea how to change the
+speed and precision in the second stage of the simulations.
+<H4>
+Graph: toggle graphical output</H4>
+<B>Format</B>: <TT>Graph</TT> <I>integer</I>
+<BR><B>Default</B>: 0
+<BR><B>Range</B>: 0,1
+
+<P>This option is ignored on architectures not supporting OpenGL and in
+non-interactive mode. When set to 1, then the actual distance matrices
+before ("Dist") and after ("Eucl") the embedding are displayed in fancy
+graphics windows, and the 3D iterations can be monitored in a little molecular
+movie. This option slows down the calculations slightly and therefore should
+be switched off when not needed (but it is very nice to watch if you are
+not in a hurry).
+<CENTER><IMG SRC="movie.gif" SGI_SRC="/raid1/usr/people/andras/dragon4/doc/movie.gif"  ALIGN=CENTER></CENTER>
+
+<CENTER><I>Screen snapshot of DRAGON running with graphical output enabled.</I></CENTER>
+
+<H4>
+<A NAME="Homfnm"></A>Homfnm: homologous structures</H4>
+<B>Format</B>: <TT>Homfnm</TT> <I>filename</I>
+<BR><B>Default</B>: <I>none</I>
+
+<P>This file, if specified, contains the 3D structure of one or more of
+the sequences in the alignment in PDB format. Only monomeric structures
+are considered: they may be separated by <TT>TER</TT> cards or enclosed
+between <TT>MODEL/ENDMDL</TT> cards. Chain identifier characters are ignored
+for the <TT>ATOM</TT> cards. It is sufficient to provide the C-alpha coordinates
+only since all other PDB information will be ignored.
+
+<P>The sequences belonging to the structures are automatically deduced
+from the <TT>ATOM</TT> cards (the <TT>SEQRES</TT> cards are ignored!) and
+then the structures are used as scaffolds for homology modelling. Structures
+whose sequences cannot be found in the alignment will be ignored. A common
+problem is to submit <I>slightly</I> different sequences to the multiple
+alignment program but this results in disaster since DRAGON demands an
+exact string match. If you wanted to do homology modelling and DRAGON tells
+you that no homology-derived restraints were generated, then check the
+sequences carefully.
+<H4>
+<A NAME="masterno"></A>Masterno: target sequence selection</H4>
+<B>Format</B>: <TT>Masterno</TT> <I>integer</I>
+<BR><B>Default</B>: 0
+<BR><B>Range</B>: all non-negative integers
+
+<P>Specifies which sequence in the multiple alignment should serve as the
+"master sequence'', <I>i.e.</I> the model chain's sequence. If set to 0
+(the default), then the consensus sequence of the alignment will be the
+model sequence.
+<H4>
+<A NAME="Maxdist"></A>Maxdist: maximal length of homology-derived restraints</H4>
+<B>Format</B>: <TT>Maxdist</TT> <I>float</I>
+<BR><B>Default</B>: 5.0 &Aring;
+<BR><B>Range</B>: >= 5.0 &Aring;
+
+<P>This parameter specifies the maximal C-alpha distance between two residues
+in the known structure(s) which are used as homology-derived restraints.
+The default value roughly corresponds to the radius of the first coordination
+sphere in protein interiors. Increased <TT>Maxdist</TT> values give better
+accuracy but the larger number of restraints might result in slightly longer
+simulation times. This parameter is ignored if <TT><A HREF="#Homfnm">Homfnm</A></TT>
+is not specified (no homology modelling).
+<H4>
+<A NAME="Maxiter"></A>Maxiter: 3D refinement iterations</H4>
+<B>Format</B>: <TT>Maxiter</TT> <I>integer</I>
+<BR><B>Default</B>: 40
+<BR><B>Range</B>: 1 ... 500
+
+<P>DRAGON handles 3D iterations in a special way because you are interested
+in 3D models only. Untangled 3D structures are saved during the 3D iterations
+if their scores are better than those of the previously saved "best'' structure.
+If no acceptable structures are found, then DRAGON repeats the 3D embedding
+step in every five or so cycles to get into a new local minimum. If no
+acceptable structures were found in <TT>Maxiter</TT> iterations, then DRAGON
+repeats the whole simulation, starting afresh from high dimensions.
+
+<P>The choice of <TT>Maxiter</TT> affects the CPU time requirements to
+a large extent. The default value is a good starting point but you should
+experiment with different values to get a good tradeoff between model quality
+and simulation time. In general, larger structures would need higher <TT>Maxiter</TT>
+values. Note that in my experience it is probably a better idea to run
+more rough simulations rather than refining a few to the extreme.
+<H4>
+Minchange: minimal score change</H4>
+<B>Format</B>: <TT>Minchange</TT> <I>float</I>
+<BR><B>Default</B>: 0.0
+<BR><B>Range</B>: all non-negative floating point numbers
+
+<P>The minimal relative change of the steric violation and distance scores
+between two iterations. Serves as an exit criterion.
+<H4>
+Minscore: minimal score</H4>
+<B>Format</B>: <TT>Minscore</TT> <I>float</I>
+<BR><B>Default</B>: 0.0
+<BR><B>Range</B>: all non-negative floating point numbers
+
+<P>The minimal value of the steric violation and distance scores. The simulation
+exits when the scores fall below this value.
+<H4>
+<A NAME="Minsepar"></A>Minsepar: minimal sequential separation</H4>
+<B>Format</B>: <TT>Minsepar</TT> <I>integer</I>
+<BR><B>Default</B>: 2
+<BR><B>Range</B>: all integers >=2
+
+<P>The minimal sequential separation between two residues for which a homology
+restraint will be generated. This parameter has to be larger than or equal
+to 2 (the default value) and will be ignored when no homology file is specified.
+It does not make much sense to vary this parameter and probably will not
+be supported in the next release.
+<H4>
+Outfnm: output file name</H4>
+<B>Format</B>: <TT>Outfnm</TT> <I>[dir_path/]filename</I>
+<BR><B>Default</B>: DRAGON_OUT
+
+<P>Specifies the name from which the result filenames and various logfile
+names are derived. If the optional directory path <I>dir_path</I> is given,
+then the program attempts to create the necessary subdirectories in the
+path if they do not exist already. Should the directory creation fail for
+whatever reason, then the output files are created in the current working
+directory. Note that environment variables like "$HOME" and other shell-dependent
+things like "~" will NOT be expanded.
+
+<P>The best simulation result is saved in PDB format, listing the C-alpha
+atoms and the fake sidechain centroids as C-beta atoms, as well as the
+sequence and secondary structure assignment. The result of the <I>k</I>-th
+run will be saved as "<I>filename_k</I>.pdb". If a valid 3D embedding was
+found, then a restraint violation file will also be generated with the
+name "<I>filename_k</I>.viol''. In rare circumstances it might happen that
+no untangled models could be found: in this case the last horrible structure
+is saved anyway under the name "<I>filename</I>_TEMPORARY<I>_k</I>.pdb".
+A desperate attempt is also made to untangle the structure and the result
+will be saved as "<I>filename</I>_UNTANGLED<I>_k</I>.pdb". These files
+are saved only to frighten you and should be discarded.
+<BR>In parallel mode (<TT>-m </TT>option) the child processes generate
+log files for each run called "<I>filename_k</I>.log''.
+<H4>
+Phobfnm: residue hydrophobicity file</H4>
+<B>Format</B>: <TT>Phobfnm</TT> <I>filename</I>
+<BR><B>Default</B>: $DRAGON_DATA/DEFAULT.pho
+
+<P>Specifies the amino acid hydrophobicity values. No need to be changed.
+Every non-comment line in the file lists an amino acid (with one-letter
+code) and its hydrophobicity value separated with whitespaces like this:-
+
+<P><TT># Membrane hydrophobicity data</TT>
+<BR><TT>A 1.73</TT>
+<BR><TT>B 0.02</TT>
+<BR><TT>...</TT>
+<BR><TT>Z 0.02</TT>
+<H4>
+<A NAME="Randseed"></A>Randseed: seed for the random number generator</H4>
+<B>Format</B>: <TT>Randseed</TT> <I>integer</I>
+<BR><B>Default</B>: 0
+<BR><B>Range</B>: all non-negative integers
+
+<P>This number serves as the seed for the random number generator used
+to fill up the initial distance matrix. If it is 0 (the default), then
+the random number generator will be seeded with the system time, otherwise
+with the specified <I>integer</I>. If multiple runs are specified (with
+the <TT>-r</TT> command-line option or via the <TT>r[un]</TT> command)
+then the program assumes that <TT>Randseed</TT>=0.
+<H4>
+<A NAME="Restrfnm"></A>Restrfnm: distance restraint file name</H4>
+<B>Format</B>: <TT>Restrfnm</TT> <I>filename</I>
+<BR><B>Default</B>: <I>none</I>
+
+<P>Contains the list of external distance restraints. Restraints may be
+specified between C-alpha, side-chain atoms or a pseudo-atom called "SCC"
+(side chain centroid) in the form of lower/upper-limit pairs with a "strictness"
+value. Atom names should follow the PDB conventions. No file is specified
+as the default, meaning that no external distance restraints are available.
+The format of a line in the file is:-
+
+<P><I>res1 res2 lowlim uplim strict atom1 atom2</I>
+
+<P>where <I>res1, res2</I> are the residue numbers (>=1), <I>lowlim</I>
+and <I>uplim</I> are the lower and upper distance limits in &Aring; units,
+0.0&lt;=<I>strict</I>&lt;=1.0 is the strictness value reflecting the reliability
+of the restraint (0.0 means totally unreliable, 1.0 is absolutely certain),
+and <I>atom1, atom2</I> are the atoms linked by the restraint. Restraints
+within residues can be specified if <I>res1=res2</I>. Here is an example:-
+
+<P><TT># Example restraint file</TT>
+<BR><TT>6 9 4.89 5.69 0.986 CA CA</TT>
+<BR><TT>12 15 4.89 7.11 0.627 SCC SCC</TT>
+<BR><TT>15 17 3.83 4.15 0.635 CB SG</TT>
+<BR><TT>...</TT>
+<H4>
+Simfnm: similarity matrix file</H4>
+<B>Format</B>: <TT>Simfnm</TT> <I>filename</I>
+<BR><B>Default</B>: $DRAGON_DATA/DEFAULT.sim
+
+<P>Specifies the amino acid similarity matrix. The default file contains
+Dayhoff's PAM250 matrix. A variety of other similarity matrices are also
+available in <TT>$DRAGON_DATA*.sim</TT> files. You can also specify your
+own, here is the format:-
+
+<P><TT># Mutation Data Matrix (250 PAMs) DRAGON 4.x default</TT>
+<BR><TT>ARNDCQEGHILKMFPSTWYVBZX</TT>
+<BR><TT>2 -2 0 0 -2 0 0 1 -1 -1 -2 -1 -1 -4 1 1 1 -6 -3 0 0 0 0</TT>
+<BR><TT>-2 6 0 -1 -4 1 -1 -3 2 -2 -3 3 0 -4 0 0 -1 2 -4 -2 -1 0 0</TT>
+<BR><TT>...</TT>
+
+<P>The first non-comment line should be a string that specifies the order
+of the amino acids in the columns and the rows. There must be exactly as
+many rows and columns as the number of characters in the order string.
+The matrix elements are floating-point values separated by whitespaces.
+<H4>
+Speceps: precision for Spectral Gradient iterations</H4>
+<B>Format</B>: <TT>Speceps</TT> <I>float</I>
+<BR><B>Default</B>: 0.02
+<BR><B>Range</B>: 0.0001...0.1
+
+<P>Spectral Gradient is an iterative optimisation method used to move a
+set of points in Euclidean space so that their distances correspond to
+a prescribed distance matrix (see Wells <I>et al</I>, <I>J. Mol. Struct.</I>
+<B>308</B>: 263-271 (1994) for a detailed description). This parameter
+sets the precision for the iteration: when the relative "stress" change
+is less than <TT>Speceps</TT>, then the iteration is terminated. Lower
+values mean more iterations. See also <TT><A HREF="#Speciter">Speciter</A></TT>
+below.
+<H4>
+<A NAME="Speciter"></A>Speciter: maximal number of Spectral Gradient iterations</H4>
+<B>Format</B>: <TT>Speciter</TT> <I>integer</I>
+<BR><B>Default</B>: 30
+<BR><B>Range</B>: 10...100
+
+<P>This parameter controls the maximal number of Spectral Gradient iterations
+used in Euclidean adjustments. Sometimes the method does not converge,
+in these cases DRAGON performs a less elegant but more robust steepest
+descent-like optimisation.
+<H4>
+<A NAME="Sstrfnm"></A>Sstrfnm: secondary structure file</H4>
+<B>Format</B>: <TT>Sstrfnm</TT> <I>filename</I>
+<BR><B>Default</B>: <I>none</I>
+
+<P>This file holds the secondary structure assignments. Currently 3/10-,
+alpha- and pi-helices and beta-sheets are implemented. You must supply
+the alignment information for strands in a beta-sheet. Bifurcated sheets
+may be specified as overlapping "normal" sheets following the PDB convention.
+A warning is issued when overlapping sheets are encountered: all other
+overlapping secondary structure elements are ignored. An optional "strictness"
+value between 0.0 and 1.0 may be specified for each secondary structure
+element in the file which regulates the extent to which ideal secondary
+structure is enforced on the model. 1.0 corresponds to full adjustment,
+0.0 means that the ideal geometry is not enforced at all. In some cases
+it is worthwhile to specify a medium strictness, especially for long helices
+(which are sometimes bent, as opposed to the ideal straight helices generated
+by DRAGON) and for curved sheets.
+
+<P>DRAGON lists the accepted secondary structure specification to standard
+output prior to the runs which can be used to verify that you supplied
+a correct assignment. No file is specified as default but if you fail to
+provide one, then you are on your own: DRAGON cannot predict secondary
+structure yet and since the detangling relies on the assignment, the results
+will be of dubious value.
+
+<P>A few words about the file format. Secondary structure elements may
+be specified in any order, with comment lines in between. Helix specifications
+have the format:-
+
+<P><I>helixtype beg end</I> [<I>strict</I>]
+
+<P>where <I>helixtype</I>=<TT>ALPHA</TT> or <TT>HELIX</TT> for alpha-helices,
+<TT>HX310</TT> for 3/10-helices or <TT>HXPI</TT> for pi-helices, beginning
+at residue <I>beg</I> and ending at <I>end</I>, with the optional <I>strict</I>
+value between 0.0 and 1.0.
+
+<P>The sheet description spans multiple lines. It starts with a line that
+contains the keyword <TT>SHEET</TT>, optionally followed by a strictness
+value for the whole sheet. Then comes the first strand with the format:-
+
+<P><TT>STRAND</TT> <I>beg end</I>
+
+<P>The rest of the strands in the sheet are described like this:-
+
+<P><TT>STRAND</TT> <I>beg end sense this_pos prev_pos</I>
+
+<P>where <I>sense</I>=<TT>PAR</TT> or <TT>ANTI</TT> indicates whether the
+current strand is parallel or anti-parallel with respect to the previous
+strand. The last two numbers describe the phasing of the strand: the residue
+indicated by <I>this_pos</I> is hydrogen-bonded to the residue <I>prev_pos</I>
+on the previous strand. The sheet description ends with a line containing
+the keyword <TT>END</TT>. Easy, isn't it? Here is a full example:-
+
+<P><TT># Example secstr file</TT>
+<BR><TT># an alpha-helix</TT>
+<BR><TT>ALPHA 12 25</TT>
+<BR><TT># another alpha-helix</TT>
+<BR><TT>HELIX 39 45</TT>
+<BR><TT># a 3/10 helix</TT>
+<BR><TT>HX310 69 76</TT>
+<BR><TT># a pi-helix</TT>
+<BR><TT>HXPI 104 116</TT>
+<BR><TT># helix we're not sure about (strictness 0.5)</TT>
+<BR><TT>ALPHA 156 172 0.5</TT>
+<BR><TT># the main sheet has a bulge at 30 and the last strand is bifurcated</TT>
+<BR><TT>SHEET</TT>
+<BR><TT>STRAND 27 29</TT>
+<BR><TT>STRAND 1 7 PAR 1 27</TT>
+<BR><TT>STRAND 47 54 PAR 47 1</TT>
+<BR><TT>STRAND 86 92 PAR 86 48</TT>
+<BR><TT>STRAND 119 121 PAR 119 86</TT>
+<BR><TT>END</TT>
+<BR><TT># note that most strand descriptions are just repeated</TT>
+<BR><TT>SHEET</TT>
+<BR><TT>STRAND 27 29</TT>
+<BR><TT>STRAND 1 7 PAR 1 27</TT>
+<BR><TT>STRAND 47 54 PAR 47 1</TT>
+<BR><TT>STRAND 86 92 PAR 86 48</TT>
+<BR><TT>STRAND 145 147 PAR 145 90</TT>
+<BR><TT>END</TT>
+<BR><TT># little extra antiparallel sheet at strictness=0.7</TT>
+<BR><TT>SHEET 0.7</TT>
+<BR><TT>STRAND 137 138</TT>
+<BR><TT>STRAND 141 142 ANTI 142 137</TT>
+<BR><TT>STRAND 124 125 ANTI 124 142</TT>
+<BR><TT>END</TT>
+
+<P>You may also consult the PDB Format guide because the sheet representation
+in this file closely follows the PDB conventions. Be careful when specifying
+beta-barrels, though: I haven't tried that yet. The PDB convention of specifying
+the first strand as the last would probably not work.
+
+<P>Let me give you some tactical advice about secondary structure assignment.
+It is relatively straightforward to write the assignment file if you perform
+homology modelling: all you have to do is to map the secondary structure
+elements in the template structure(s) onto the target sequence. If you
+attempt <I>ab initio</I> modelling then the assignments usually come from
+secondary structure predictions. Since it is not possible to assign a secondary
+structure strictness value to every residue based on the probabilities
+generated by most prediction programs, the workaround is to use your judgment
+and assign an average strictness to the secondary structure elements. The
+conformation adjustment routine does not like very short elements,<I> i.
+e. </I>3-residue "helices" or 2-residue strands: if you need these, then
+you are probably better off by supplying some distance restraints in the
+<TT>Restrfnm</TT> restraint file.
+
+<P>Beta-sheets pose another problem. Prediction programs usually generate
+the strands only but DRAGON needs the sheet topology as well. In most cases
+you have to generate a few plausible topologies by hand and then compare
+the results obtained from runs done with each assignment. This approach
+is feasible for small sheets only.
+<H4>
+Tangiter: detangling iterations</H4>
+<B>Format</B>: <TT>Tangiter</TT> <I>integer</I>
+<BR><B>Default</B>: 5
+<BR><B>Range</B>: 1...100
+
+<P>Maximal number of detangling iterations. The detangling tries to get
+rid of the tangled conformations which are an annoying artefact of Distance
+Geometry projections. The default iteration number is probably a safe compromise
+between speed and efficiency. Note that detangling cannot be carried out
+if no secondary structure was specified.
+<H4>
+Volfnm: amino acid side chain volume file</H4>
+<B>Format</B>: <TT>Volfnm</TT> <I>filename</I>
+<BR><B>Default</B>: $DRAGON_DATA/DEFAULT.vol
+
+<P>Specifies the average amino acid side-chain volumes: No need to be changed.
+The default file looks like this:-
+
+<P><TT># Amino acid volume data for DRAGON 4.x (default)</TT>
+<BR><TT>A 22.7</TT>
+<BR><TT>B 50.2</TT>
+<BR><TT>...</TT>
+<BR>
+<HR>
+<CENTER>
+<H2>
+<A NAME="references"></A>References</H2></CENTER>
+The following publications by us contain a detailed description of the
+theory behind DRAGON, together with some test cases. Please refer to these
+if you are interested in how the program works. Additionally, if you have
+achieved a major breakthrough using DRAGON, please share your enjoyment
+with us and cite some of these publications in your paper.
+
+<P>Asz&oacute;di, A. and Taylor, W. R. (1994):
+<BR>Folding polypeptide alpha-carbon backbones by distance geometry methods.
+<BR><I>Biopolymers</I> <B>34</B>, 489-505.
+
+<P>Taylor, W. R. and Asz&oacute;di, A. (1994):
+<BR>Building protein folds using distance geometry: Towards a general modelling
+and prediction method.
+<BR><I>In</I>: Merz, K. M., Jr. and LeGrand, S. M. <I>(eds)</I>: <I>The
+Protein Folding Problem and Tertiary Structure Prediction</I>, 165-192.
+<BR>Birkh&auml;user, Boston. <I>(Book chapter)</I>
+
+<P>Asz&oacute;di, A. and Taylor, W. R. (1994):
+<BR>Secondary structure formation in model polypeptide chains.
+<BR><I>Protein Engng.</I> <B>7</B>, 633-644.
+
+<P>Asz&oacute;di, A., Gradwell, M. J. and Taylor, W. R. (1995):
+<BR>Global fold determination from a small number of distance restraints.
+<BR><I>J. Mol. Biol.</I> <B>251</B>, 308-326.
+
+<P>Asz&oacute;di, A. and Taylor, W. R. (1995):
+<BR>Estimating polypeptide alpha-carbon distances from multiple sequence
+alignments.
+<BR><I>J. Math. Chem.</I> <B>17</B>, 167-184.
+
+<P>Asz&oacute;di, A. and Taylor, W. R. (1996):
+<BR>Homology modelling by distance geometry.
+<BR><I>Folding &amp; Design</I> <B>1</B>, 325-334.
+
+<P>Asz&oacute;di, A. and Taylor, W. R. (1997):
+<BR>Hierarchic inertial projection: A fast distance matrix embedding algorithm.
+<BR><I>Computers &amp; Chemistry</I> <B>21</B>, 13-23.
+</BODY>
+</HTML>

@@ -1,0 +1,553 @@
+.\" Copyright (c) 1993-1996 Andras Aszodi
+.TH dragon 1 "22 May 1998" "Version 4.17"
+.de BP
+.sp
+.ti \-.2i
+\(**
+..
+
+.SH NAME
+dragon \- Distance Geometry\-based protein modelling tool
+
+.SH SYNOPSIS
+.hy 0
+.na
+.B dragon \c
+.RB "[\|" \-hMA "\|]" 
+.RB "[\|" "\-c \fIcommand_file" "\|]"
+.RB "[\|" "\-m \fIproc_no" "\|]"
+.RB "[\|" "\-p \fIparam_file" "[\|" "\-r \fIrun_no" "\|]" "\|]"
+.ad b
+.hy 1
+.SH DESCRIPTION
+.B dragon\c
+\& obtains the tertiary fold of a small protein from a multiple
+alignment of its sequence and homologous sequences, the secondary
+structure assignment and a set of structure\-specific distance
+restraints. Distance restraints can be obtained from known
+structures whose sequences participate in the alignment.
+
+.SH OPTIONS
+If no options are given, the program enters 
+.B interactive mode\c
+\& and displays the "DRAGON>" prompt.
+
+.TP
+.B \-h
+Prints a short help to the standard output, listing the version
+number and the available command-line options, then exits.
+
+.TP
+.B "\-c \fIcommand_file"
+Executes the 
+.B dragon\c
+\& commands in \fIcommand_file\fP. If no filename is given or
+if \fIcommand_file\fP cannot be opened then the program
+starts up in
+.B interactive mode\c
+\&. The commands
+
+.B "dragon \-c \fIcommand_file"
+.br
+.B dragon\c
+\& < \fIcommand_file\fP
+.br
+cat \fIcommand_file\fP | 
+.B dragon
+
+are all equivalent.
+
+.TP
+.B "\-m \fIproc_no"
+Instructs
+.B dragon\c
+\& to spawn \fIproc_no\fP>=2 sub-processes when several simulation
+runs are executed (see the
+.B r[un]\c
+\& command below). The simulation runs are distributed evenly
+between the child processes. The parent process does not do
+any work apart from monitoring the children and killing them
+if <Ctrl-C> is pressed. Standard output and standard error from the children
+are automatically written to logfiles, one per run (not per
+child process) with the name ``\fIoutput_file\fP_k.log''
+for the k-th run (cf. the parameter
+.B Outfnm\c
+\& below which specifies \fIoutput_file\fP). This option
+implements coarse-grain parallelism on a multiprocessor machine.
+
+.TP
+.B \-M
+Start up in Parallel Virtual Machine (PVM) mode. PVM is free software
+developed at the Oak Ridge National Laboratory
+which links heterogeneous UNIX workstations on a network into a
+virtual multiprocessor machine. Under PVM, 
+.B dragon -M\c
+\& spawns a slave task on each node making up the virtual machine.
+These slaves then perform the simulations requested by the
+.B r[un]\c
+\& command (see below). Before a run, the master process
+checks the virtual machine configuration and therefore it is
+possible to reconfigure it between runs without exiting from
+.B dragon\c
+\&. Load distribution is done using the "pool-of-tasks" 
+paradigm: the master process sends a run to the first idle slave it can find,
+thus sending more work to the faster ones.
+The master task communicates with the user and coordinates
+data message passing. Signals caught by the master are re-sent
+to the slaves which trap them exactly in the same manner
+as the single-process
+.B dragon\c
+\& would. Consequently, in contrast to the multiprocess run, the slaves
+are not killed if <Ctrl-C> is caught by the master.
+Standard output and standard error from the slaves
+are automatically written to logfiles, one per slave
+(not one per run) with the name ``\fIxxxxx@hostname\fP''
+where \fIxxxxx\fP is the PVM task ID (a hexadecimal number)
+and \fIhostname\fP is the name of the node the slave is running on.
+This option implements coarse-grain parallelism if no real
+multiprocessor machine is available. If PVM is running, then
+the 
+the 
+.B -M\c
+\& option overrides the
+.B -m\c
+\& option. If PVM is not available, then various error messages
+will be printed by the PVM library but these can be ignored.
+ 
+.TP
+.B "\-p \fIparam_file [\-r \fIrun_no]"
+Loads the parameters in \fIparam_file\fP into
+.B dragon\c
+\& and performs \fIrun_no\fP simulation runs. This option overrides
+the 
+.B -c\c
+\&, 
+.B -m\c
+\& and
+.B -M\c
+\& options.
+
+.TP
+.B \-A
+This option is not entirely serious. Prints The Answer and exits.
+
+.SH COMMANDS
+All commands are lowercase strings and the trailing
+characters enclosed in square brackets can be omitted. Command names
+and optional arguments are separated by whitespace.
+Commands can be specified in ASCII text files where
+only one command per line is allowed, or at the 
+``DRAGON>'' prompt in interactive mode. Lines in command
+files beginning with the character
+.B #\c
+\& are interpreted as comments and ignored. Commands can also
+be piped to the
+.B dragon\c
+\& standard input in which case care should be taken to separate
+them by newlines.
+
+.TP
+.B "c[ommand] \fIcommand_file"
+Execute the commands in \fIcommand_file\fP. Command file calls
+can be nested up to the maximal depth of 16. If \fIcommand_file\fP
+is omitted then the program enters interactive mode. The number
+of ``>'' characters following the ``DRAGON'' prompt indicates
+the current call depth.
+
+.TP
+.B d[efault]
+Reset all parameters to their default values.
+
+.TP
+.B h[elp]
+Prints a short help on all available commands. This command works
+in interactive mode only and is ignored when issued from within a command file.
+
+.TP
+.B "l[ist] \fIParam"
+List a short description and the value of parameter \fIParam\fP
+to the standard output. If \fIParam\fP is omitted, then all
+parameters are listed.
+
+.TP
+.B o[s]
+Invokes an OS shell (the user's default). Return to
+.B dragon\c
+\& by typing `exit'.
+
+.TP
+.B "p[aram] \fIparameter_file"
+Reads the parameter specifications in \fIparameter_file\fP.
+It is an error if the file cannot be opened. For the parameter
+description format, refer to the section
+.B PARAMETERS\c
+\& below.
+
+.TP
+.B q[uit]
+Quit 
+.B dragon\c
+\&. If invoked in a nested command file, then execution of the
+file is terminated and control will be returned to the caller. 
+.B dragon\c
+\& exits only if 
+.B quit\c
+\& was issued at the topmost level. Since execution automatically
+terminates at the end of command files anyway,
+.B quit\c
+\& is mainly useful in interactive mode. The program asks for 
+confirmation before exiting.
+
+.TP
+.B "r[un] \fIrepetition"
+Perform the simulation \fIrepetition\fP times using the current
+parameters but starting with a different random distance matrix
+each time. If \fIrepetition\fP is omitted, then one simulation
+is carried out. Simulations can be interrupted by typing <Ctrl-C>.
+
+.TP
+.B "s[ave] \fIparameter_file"
+Saves the parameters to \fIparameter_file\fP or to the standard
+output if \fIparameter_file\fP is omitted. 
+
+.SH PARAMETERS
+Parameters are usually specified in an ASCII text file, one
+parameter per line. The name of the parameters start with
+uppercase letters (to distinguish them from the commands,
+see above) and must be specified literally. Commands
+and parameter specifications may be freely mixed: the line
+
+.B "Param \fIvalue"
+
+encountered in a command file instructs the interpreter to 
+set the parameter
+.B Param\c
+\& to \fIvalue\fP. The parameter's
+name and its value are separated by whitespaces. 
+Invalid parameter names and malformed parameter
+specifications are ignored silently.
+All parameters
+have default values. The default data files live in the `data'
+subdirectory and are called ``DEFAULT.*''.
+Numeric parameters have a default value and
+a permitted range. If a specified value is outside the range,
+it will be adjusted silently to the closest upper (or lower)
+limit. All distance measurements are given in angstrom
+units. Lines beginning with the character
+.B #\c
+\& are interpreted as comments in the parameter file.
+ The full
+list of parameters is saved to disk after each run
+in the file "./DRAGON_LASTRUN.par" for reference. The following
+parameters are available in the current version:-
+
+.TP
+.B "Accfnm \fIaccessibility_file"
+Residues which are known to be either on the surface or buried
+inside may be specified in this file. The default is none.
+
+.TP
+.B "Adistfnm \fIdistance_file"
+Specifies the average distances of side-chain atoms from the C-alpha
+atoms and from the centroid of the side chain. The default file
+\fIdata/DEFAULT.acd\fP
+contains data derived from the Ponder/Richards rotamer library.
+
+.TP
+.B "Alnfnm \fIalignment_file"
+Contains a multiple sequence alignment in MULTAL
+vertical format or GCG horizontal format (MSF). Both formats
+are quite forgiving: see the User Guide for details.
+The alignment file specifies the sequence of the
+model chain (see
+.B Masterno\c
+\& below) and the conserved hydrophobicity scores are also
+deduced from it. If \fIalignment_file\fP cannot be read,
+then the program falls back to a ``default alignment file'' 
+\fIdata/DEFAULT.aln\fP which is, of course, meaningless.
+
+.TP
+.B "Density \fIfloat"
+The number of C\-alpha atoms per cubic angstroms. This value
+is surprisingly constant for proteins: use the default value
+with confidence if no better guess is available.
+
+.TP
+.B "Evfract \fIfloat"
+Fraction of eigenvalues retained in each projection. A low
+value means larger jumps in dimensionality towards 3D but
+embedding accuracy is reduced. The default 0.95 is probably
+inadequate for high-precision jobs: use 0.999 instead.
+
+.TP
+.B "Graph \fIinteger"
+This option is ignored on non-SGI machines. When set to 1,
+then the distance matrices are displayed in fancy graphics
+windows, and the 3D iterations can be monitored in a little
+molecular movie. The graphics display uses the SGI GL graphics
+language. Unfortunately this option incurs a heavy performance
+penalty and therefore should be switched off when not needed.
+
+.TP
+.B "Homfnm \fIhomologous_structure_file"
+This file, if specified, contains the structure of one or more of the
+sequences in the alignment in PDB format. Only monomeric structures
+are considered: they may be separated by TER cards or enclosed
+between MODEL/ENDMDL cards. Chain identifier characters are
+ignored for the ATOM cards. The sequences belonging to the
+structures are automatically
+identified and then the structures are used as an additional source
+of distance restraints. The distances between the positions
+which are shorter than the maximal distance specified by 
+.B Maxdist\c
+\& (see below) are used as restraints for the model.
+No file is specified as default.
+
+.TP
+.B "Masterno \fIinteger"
+Specifies which sequence in the multiple alignment (see
+.B Alnfnm\c
+\& above) should serve as the ``master sequence'', i.e.
+the model chain's sequence. If \fIinteger\fP=0 (the default), then
+the consensus sequence of the alignment will be the
+model sequence.
+
+.TP
+.B "Maxdist \fIfloat"
+The maximal C-alpha distance between two residues
+in the known structure(s) that
+can participate in homology-derived distance restraints (see
+.B Homfnm\c
+\&). The default 
+.B Maxdist\c
+\& value is 5.0 angstroms, which roughly corresponds to the
+first coordination sphere in protein interiors. Increased
+.B Maxdist\c
+\& values give better accuracy but the larger number of 
+restraints may result in longer simulation times. This
+parameter is ignored if 
+.B Homfnm\c
+\& is not specified (no homology modelling).
+
+.TP
+.B "Maxiter \fIinteger"
+The number of refinement iterations in 3D (default 40).
+This is probably a good compromise.
+
+.TP
+.B "Minchange \fIfloat"
+The minimal change of the steric violation and distance scores
+between two iterations. Serves as an exit criterion.
+
+.TP
+.B "Minscore \fIfloat"
+The minimal value of the steric violation and distance scores.
+The simulation exits when the scores fall below this value.
+
+.TP
+.B "Minsepar \fIinteger"
+The minimal separation between two residues for which a homology
+restraint will be generated. This parameter has to be larger than or
+equal to 2 (the default value).
+
+.TP
+.B "Outfnm \fIresult_file"
+Specifies the name of the result file (default ``DRAGON_OUT'').
+The best simulation result is saved to this file in PDB format,
+listing the C-alpha atoms and the fake sidechain centroids
+as C-beta atoms, as well as the sequence and secondary structure assignment.
+The result of the k-th run will be saved
+as ``\fIoutput_file\fP_k.pdb'', restraint violations are written
+to ``\fIoutput_file\fP_k.viol''.
+
+.TP
+.B "Phobfnm \fIphobicity_file"
+Specifies the amino acid hydrophobicity values, the
+default values are in \fIdata/DEFAULT.pho\fP. No need to be changed.
+
+.TP
+.B "Randseed \fIinteger"
+This number serves as the seed for the random number generator
+used to fill up the initial distance matrix. If \fIinteger\fP=0 (the default),
+then the random number generator will be seeded with the
+output of \fItime(NULL)\fP, otherwise with \fIinteger\fP.
+In the latter case, two consecutive runs shall give exactly
+the same result (useful mainly for debugging).
+
+.TP
+.B "Restrfnm \fIrestraint_file"
+Contains the list of external distance restraints. Restraints may
+be specified between C-alpha, side-chain atoms or a
+pseudo-atom called `SCC' (side chain centroid)
+in the form of lower/upper\-limit pairs with a ``strictness''
+value. Atom names should follow the PDB conventions.
+No file is specified as the default, meaning that no
+external distance restraints are available.
+
+.TP
+.B "Simfnm \fIsimilarity_file"
+Specifies the amino acid similarity matrix. The default file
+\fIdata/DEFAULT.sim\fP
+contains Dayhoff's PAM250 matrix. A variety of other similarity
+matrices are also available in \fIdata/*.sim\fP files.
+
+.TP
+.B "Speceps \fIprecision"
+Spectral Gradient is an iterative optimisation method used to move a set of
+points in Euclidean space so that their distances correspond to a prescribed
+distance matrix (see Wells et al, J. Mol. Struct. 308:
+263-271 (1994)  for a detailed description). This parameter sets the precision
+for the iteration: when the relative stress change is less than
+.B Speceps\c
+\&, then the iteration is terminated. Lower values mean more
+iterations.
+
+.TP
+.B "Speciter \fIiter_no"
+This parameter controls the maximal number of Spectral Gradient iterations
+used in Euclidean adjustments. Sometimes the method does not converge, in these
+cases 
+.B dragon\c
+\& performs a less elegant but more
+robust steepest descent-like optimisation.
+
+.TP
+.B "Sstrfnm \fIsecondary_structure_file"
+This file holds the secondary structure assignments. Currently
+3/10\-, alpha\- and pi\-helices and beta\-sheets are implemented. The user must
+supply the alignment information for strands in a beta\-sheet.
+Bifurcated sheets may be specified as overlapping "normal" sheets
+following the PDB convention. A warning is issued when overlapping
+sheets are encountered: all other overlapping secondary structure
+elements are ignored. An optional "strictness" value between 0.0 and
+1.0 may be specified for each secondary structure element in the
+file which regulates the extent to which ideal secondary structure
+is enforced on the model. 
+.B dragon\c
+\& lists the accepted secondary structure specification
+to stdout prior to the runs which can be used to verify that
+the assignment supplied in the 
+.B Sstrfnm\c
+\& file was correct. No file is specified as default.
+Note, however, that currently a valid secondary structure
+is necessary to perform detangling and 
+.B dragon\c
+\& cannot predict secondary structure on its own yet.
+
+.TP
+.B "Tangiter \fIinteger"
+Maximal number of detangling iterations (default 5). The detangling
+tries to get rid of the tangled conformations which are an
+annoying artefact of Distance Geometry projections. The default
+iteration number is probably a safe compromise between
+speed and efficiency. Note that detangling cannot be
+carried out if no secondary structure was specified.
+
+.TP
+.B "Volfnm \fIvolume_file"
+Specifies the average amino acid side-chain volumes,
+the default values are in \fIdata/DEFAULT.vol\fP. No need to be changed.
+
+.SH DIAGNOSTICS
+.B dragon\c
+\& can generate various error messages of the form
+.br
+[
+.B ?!\c
+\&] \fIclass\fP::\fImethod\fP: message
+
+where the prefix 
+.B ?\c
+\& indicates warnings (recoverable errors),
+the prefix
+.B !\c
+\& indicates fatal errors,
+\fIclass\fP and \fImethod\fP specify where the error occurred
+in the source. Most warnings are printed when an input file
+is inaccessible or syntactically incorrect. The ``centre_dist''
+method occasionally complains about negative distances when
+the input matrix is non-metric: this is normal and can safely
+be ignored. Fatal errors always indicate a bug in the code.
+.br
+If PVM is available but 
+.B dragon\c
+\& was invoked without the 
+.B \-M\c
+\& flag, then the "Pvmtask_::enrol_pvm(SLAVE)" method will 
+complain about a missing parent task. This is harmless.
+If PVM is not running then some messages about missing tempfiles
+from "libpvm" may also be printed during startup.
+
+.B dragon\c
+\& catches the following signals: SIGHUP, SIGINT, SIGQUIT,
+SIGFPE, SIGPIPE, SIGALRM, SIGTERM, SIGPWR and aborts execution
+immediately except on receiving SIGINT which terminates the current
+simulation run only. The program returns with status code 0
+on normal termination (including a caught <Ctrl-C>), otherwise
+a nonzero status code is returned which is equal to the int
+value of the signal caught.
+
+.SH "SEE ALSO"
+Aszodi, A. and Taylor, W. R. (1994): Folding polypeptide alpha\-carbon
+backbones by distance geometry methods. Biopolymers \fI34\fP, 489\-505.
+.br
+Aszodi, A. and Taylor, W. R. (1994): Secondary structure formation
+in model polypeptide chains. Prot. Engng. \fI7\fP, 633\-644.
+.br
+Aszodi, A. and Taylor, W. R. (1995): Estimating polypeptide alpha\-carbon
+distances from multiple sequence alignments. J. Math. Chem. \fI17\fP, 167\-184.
+.br
+Aszodi, A., Gradwell, M. J. and Taylor, W. R. (1995): 
+Global fold determination from a small number of distance restraints. 
+J. Mol. Biol. \fI251\fP, 308\-326.
+.br
+Aszodi, A. and Taylor, W. R. (1996):
+Hierarchic inertial projection: A fast distance matrix embedding algorithm.
+Computers and Chemistry (in press)
+.br
+Aszodi, A. and Taylor, W. R. (1996):
+Homology modelling by distance geometry.
+Folding and Design\fI1\fP, 325\-334.
+.br
+Aszodi, A: The ``DRAGON'' User Manual.
+.br
+Al Geist et al.: The PVM 3 User Manual.
+
+.SH AUTHORS
+The DRAGON algorithms were designed by Andras Aszodi and Willie Taylor
+and the program was implemented by Andras Aszodi. The authors
+retain all intellectual property rights. We can be reached
+by e-mail at the following addresses:-
+.br
+a-aszodi@nimr.mrc.ac.uk
+.br
+w_taylor@nimr.mrc.ac.uk
+
+.SH PORTABILITY
+Currently implemented on SGI workstations running IRIX 5.3 or
+higher, and on Intel-based PCs running Linux 2.0.x. The source code
+corresponds to the 3.0 version of C++ as defined in the
+\fIAnnotated C++ Reference Manual\fP. The C modules conform
+to pure ANSI C. Porting to other UNIX platforms should be
+relatively easy apart from possible template linking problems.
+The authors regret that the source code cannot
+be made publicly available.
+
+.SH BUGS
+Might creep out of the dark corners of the code.
+
+.SH FEATURES
+Under PVM, both the master and the slaves go to sleep for 1-second
+intervals before checking the message queue. This causes a little
+delay between issuing the
+.B r[un]\c
+\& command and the first reports from the slaves. However, a lot
+of CPU cycles are saved this way when the tasks are idle.
+
+.SH DISCLAIMER
+This program is provided ``as is'' with no warranties, express or implied,
+whatsoever. The fact that this software has been made publicly available
+does not mean that the software is suitable for any particular
+purpose. The authors will assume no responsibility for any damages
+arising from the use of the software. Bug reports and suggestions
+are welcome but we cannot guarantee support of any sort.

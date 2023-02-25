@@ -1,0 +1,50 @@
+# Makefile.solaris-i86
+#
+# This file contains the macros needed for the GCC compiler under
+# Solaris on Sun i86 architectures.
+# NOTE: Do not use GCC before version 2.8.1!
+# It will be included by Makefiles in the "bin" and "lib" directories.
+# 9-Jul-1997.
+
+# The sub/Makefile in "lib" expect these
+# macros to be set on the command line when invoked.
+# CC: the C compiler
+# CXX: the C++ compiler
+# LIBABIFG: the ABI-dependent flags. The macro names ending in "BUG"
+# switch on workarounds for certain bugs.
+# Here is a brief explanation of the macros:-
+#
+# GLIBC_STRTOK_BUG: in the GNU C library (version 1.x), at least
+# 	as it is included with Linux 2.0.x in the Slackware 3.1.0 distribution,
+#	strtok(Str,...) dumps core if Str is the formal parameter
+#	of a function. This macro switches on a workaround.
+# NO_MATHFLOATFUNC: set if the math library does not contain things
+#	like "float sqrtf(float)" in addition to the usual
+#	"double sqrt(double)". So far I have seen those only on
+#	SGIs; SGI claims that these are ANSI C functions.
+# _BOOL: set if the C++ compiler recognises the "bool" keyword.
+#	Older SGI compilers could not do that, now SGI defines this macro.
+# __NO_CTYPE: tolower() and toupper() are macros in the GCC <string.h>
+#	and the names cause conflicts with methods in my String_ class.
+#	Define this macro to get rid of the compiler error generated.
+#	I would call this a GCC C library "feature" but perhaps the
+#	problem is with Linux.
+
+CC = gcc
+CXX = g++
+LIBABIFG = -DGLIBC_STRTOK_BUG -DNO_MATHFLOATFUNC -D_BOOL -D__NO_CTYPE
+
+# C optimisation
+COPT = -O3
+
+# C++ optimisation
+CCOPT = -O3
+
+# Template prelinker (for SGI only, use dummy command like 'echo' for non-SGI)
+TMPLINK = echo
+
+# Template instantiation options
+TMPLOPTS = -DINCLUDE_TMPL_DEFS
+
+# Other stuff
+ARFLAGS = rvcs

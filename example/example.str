@@ -1,0 +1,9 @@
+# ompa.str
+# Secstr assignment of Target 0042
+# based on phd and dsc
+# STRICTNESS IS 0.3
+# 04-Oct-1996.
+ALPHA 6 18 0.3
+ALPHA 24 36 0.3
+ALPHA 42 60 0.3
+ALPHA 66 72 0.3
